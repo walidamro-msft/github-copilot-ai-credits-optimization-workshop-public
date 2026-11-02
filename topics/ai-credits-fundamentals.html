@@ -74,6 +74,10 @@ flowchart LR
             </tbody>
           </table></div>
           <p>The same turn with a cold cache bills all 40,000 tokens as fresh input: $0.07 + $0.021 = $0.091, about 9.1 credits. Output was only 1,500 tokens yet cost more than all cached input combined.</p>
+          <figure class="media-panel">
+            <a href="../images/custom/ai-credits-opus-prompt-construction.jpg" target="_blank" rel="noopener"><img class="keep-bg" src="../images/custom/ai-credits-opus-prompt-construction.jpg" alt="Infographic of Copilot request inputs and a five-turn Claude Opus 5.5 session: 94 input credits without caching, about 34.9 with caching." width="1400" height="2208" loading="lazy" /></a>
+            <figcaption>Across a longer session, turn 1 costs more because new content is billed at the cache-write rate (500 vs 400 credits per 1M tokens); later turns read the prefix at 20. Select the image to open it full size.</figcaption>
+          </figure>
           <div class="takeaway"><h3>Key takeaway</h3><p>The two biggest levers are how much fresh context you send each turn and how much the model writes back. Cache reuse and concise output often matter more than the model's headline input price.</p></div>
         </section>
 

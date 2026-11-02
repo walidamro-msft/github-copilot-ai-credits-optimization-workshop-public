@@ -64,6 +64,10 @@ flowchart LR
             </pre>
           </div>
           <p class="diagram-caption">Orange adds to every request. Green loads only when used. Purple runs in its own context instead of growing the main thread.</p>
+          <figure class="media-panel">
+            <a href="../images/custom/customization-cost-prompt-construction.jpg" target="_blank" rel="noopener"><img class="keep-bg" src="../images/custom/customization-cost-prompt-construction.jpg" alt="Infographic grouping Copilot request inputs into always-on, on-demand, per-turn, and accumulating, with a five-turn prompt caching example." width="1400" height="2189" loading="lazy" /></a>
+            <figcaption>Instructions, tool schemas, and the skill catalog sit in the always-on group and recur on every request; skill bodies, prompt files, and agents load only when used. Select the image to open it full size.</figcaption>
+          </figure>
           <div class="takeaway"><h3>Key takeaway</h3><p>Move detail out of always-on instructions into a path-scoped instruction, prompt file, skill, or custom agent. You keep the capability and remove it from every turn.</p></div>
           <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/reference/customization-cheat-sheet" target="_blank" rel="noopener">Copilot customization cheat sheet</a></div>
         </section>

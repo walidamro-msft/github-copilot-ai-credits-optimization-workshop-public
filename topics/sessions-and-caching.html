@@ -30,6 +30,10 @@
             <cite>Source: GitHub Docs, Optimizing your AI usage</cite>
           </div>
           <p>In agentic work, the same large prefix (system prompt, instructions, tool definitions, file contents) is resent turn after turn. When the prefix matches the previous request, it is billed at the cached rate. The &ldquo;typically 10%&rdquo; is not universal: Claude Sonnet 5.5 caches at 5% of input and some models are higher, so check the model row before you quote a ratio.</p>
+          <figure class="media-panel">
+            <img class="keep-bg" src="../images/custom/sessions-caching-session-cost-animation.gif" alt="Animated chart of five Copilot turns comparing input sent with no caching to input billed when the unchanged prefix is cached." width="1280" height="780" loading="lazy" />
+            <figcaption>From turn 2 on, the striped prefix is billed at the cached rate, so billed cost grows far slower than what is sent. The chart assumes an illustrative ~90% discount; check the model row for the real rate.</figcaption>
+          </figure>
           <h3>What invalidates the cache</h3>
           <div class="cheat">
             <div class="cheat-item tone-red"><h3>Switching models</h3><p>A different model can't reuse another model's cache. Pick a model and stay on it for the session.</p></div>

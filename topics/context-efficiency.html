@@ -47,6 +47,10 @@ flowchart LR
           </div>
           <p class="diagram-caption">Orange items repeat on every turn, so they are recurring cost. Teal items grow as the session continues. Everything in the window is billed as input on each request.</p>
           <p>In Copilot CLI and the GitHub Copilot app, <code>/context</code> breaks the window into <strong>System Prompt</strong>, <strong>Custom Instructions</strong>, <strong>System Tools</strong>, <strong>MCP Tools</strong>, <strong>Messages</strong>, <strong>Free Space</strong>, and <strong>Buffer</strong>. In VS Code, hover the context window control in the chat input for a category breakdown.</p>
+          <figure class="media-panel">
+            <img class="keep-bg" src="../images/custom/context-efficiency-session-cost-animation.gif" alt="Animated stacked bar chart of five Copilot turns: always-on context repeats each turn while history and tool results grow the total." width="1280" height="760" loading="lazy" />
+            <figcaption>Watch the red always-on layer repeat on every turn while history and tool results pile up on top of it. Units are illustrative, not real token counts.</figcaption>
+          </figure>
           <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/agents/copilot-cli/context-management" target="_blank" rel="noopener">Managing context for GitHub Copilot</a></div>
         </section>
 

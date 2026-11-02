@@ -26,6 +26,7 @@
         <section id="routing" class="section-card reveal">
           <h2>Start With Automatic Routing</h2>
           <p>Defaulting to the most capable model for every task often increases token use without improving the outcome, and overusing reasoning models can even lower quality on execution-heavy tasks. Automatic routing makes the per-task choice for you.</p>
+          <p>GitHub announced Copilot Fusion as generally available on October 28, 2026. Fusion brings together Auto's model selection and Project HydraFusion's multi-model orchestration: you choose an effort level, not a specific model.</p>
           <div class="table-wrap"><table>
             <thead><tr><th></th><th>Copilot Fusion</th><th>Auto model selection</th></tr></thead>
             <tbody>
@@ -38,35 +39,82 @@
           </table></div>
           <p>If your picker shows <strong>Copilot Fusion</strong> instead of <strong>Auto</strong>, Fusion is available on that surface. Both route along natural cache boundaries to avoid cache-related costs without quality gains.</p>
           <div class="callout warning"><strong>Important:</strong> discounts and availability change often. Recheck the linked pages before you quote a figure. Fusion High and Fusion Max aren't available on every plan, and they can use more than one model per task, so a task may cost more than on Fusion Standard.</div>
-          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/models/copilot-fusion" target="_blank" rel="noopener">About GitHub Copilot Fusion</a> &middot; <a href="https://docs.github.com/copilot/concepts/models/auto-model-selection" target="_blank" rel="noopener">About Copilot auto model selection</a></div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/models/copilot-fusion" target="_blank" rel="noopener">About GitHub Copilot Fusion</a> &middot; <a href="https://docs.github.com/copilot/concepts/models/auto-model-selection" target="_blank" rel="noopener">About Copilot auto model selection</a> &middot; <a href="https://github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/" target="_blank" rel="noopener">October 28 Fusion announcement</a></div>
+        </section>
+
+        <section id="fusion-effort" class="section-card reveal">
+          <h2>Choose Your Fusion Effort Level</h2>
+          <figure class="media-panel">
+            <img class="keep-bg" src="../images/custom/model-strategy-fusion-picker.png" alt="Copilot Fusion model picker with the toggle on and Standard, High, and Max effort levels; Max is selected." width="1022" height="523" loading="lazy" />
+            <figcaption>GitHub's announcement shows Max selected. Start with Standard for everyday work; raise effort when the task warrants additional reasoning. <a href="https://github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/" target="_blank" rel="noopener">Source: GitHub Changelog</a>.</figcaption>
+          </figure>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Effort level</th><th>Use for</th><th>Cost tradeoff</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Fusion Standard</strong></td><td>Everyday coding; balances cost, quality, and latency</td><td>Selects one model for each task</td></tr>
+              <tr><td><strong>Fusion High</strong></td><td>Substantial, well-scoped work, such as a complex bug or a multi-file change</td><td>Additional model calls may be worth the extra time and AI credits</td></tr>
+              <tr><td><strong>Fusion Max</strong></td><td>The deepest reasoning and most thorough analysis</td><td>Prioritizes frontier capability while still considering token efficiency</td></tr>
+            </tbody>
+          </table></div>
+          <p>Your plan and administrator policies constrain the available models and effort levels. Fusion High and Max can use multiple models, and you pay for every model used, not just the model that produces the final answer.</p>
+          <div class="callout"><strong>What to inspect:</strong> hover over the effort level name below a completed response to see the models used. Compare AI credits, elapsed time, and acceptance on your own tasks; the announcement's benchmark results are not a savings guarantee for your workload.</div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/models/copilot-fusion#copilot-fusion-effort-levels" target="_blank" rel="noopener">Fusion effort levels</a> &middot; <a href="https://docs.github.com/copilot/concepts/models/copilot-fusion#billing-for-copilot-fusion" target="_blank" rel="noopener">Fusion billing</a></div>
         </section>
 
         <section id="how-it-works" class="section-card reveal">
           <h2>How Copilot Fusion Executes a Prompt</h2>
+          <p>Fusion runs each prompt with one of three execution patterns.</p>
+          <h3>Single</h3>
           <div class="diagram-wrap">
             <pre class="mermaid">
 flowchart LR
-    P[Prompt] --> R{Fusion router}
-    R -->|Single| S1[One model answers]
-    R -->|Cascade| C1[Efficient draft] --> J{Judge}
-    J -->|Accept| OUT[Response]
-    J -->|Escalate| C2[Stronger model] --> OUT
-    R -->|Critique| D[Draft] --> CR[Parallel critiques] --> RV[Revise] --> OUT
-    S1 --> OUT
-    class P external
-    class R,J neutral
-    class S1,C1 success
-    class C2,CR accent
-    class D,RV azure
-    class OUT success
+    RQ[Request] --> P[Primary solves with tools] --> A[Answer]
+    class RQ neutral
+    class P azure
+    class A success
             </pre>
           </div>
-          <p class="diagram-caption">Fusion adds model calls only when a task warrants them. Cascade and Critique take longer and can cost more; Single behaves like a request to one model.</p>
+          <h3>Cascade</h3>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    P[Primary first pass] --> J{Judge model}
+    J -->|Accept| A1[Answer: primary result]
+    J -->|Escalate| RP[Repair: fresh start] --> A2[Answer]
+    class P azure
+    class J accent
+    class RP warning
+    class A1,A2 success
+            </pre>
+          </div>
+          <h3>Critique</h3>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    D[Draft: primary model] --> C{Read-only critic}
+    C -->|Approve| A[Answer: draft as-is]
+    C -.->|Revise| RV[Revision: primary model] --> A
+    class D,RV azure
+    class C accent
+    class A success
+            </pre>
+          </div>
+          <p class="diagram-caption">Adapted from GitHub's execution-pattern illustration. Blue marks the primary model, purple marks a secondary model that judges or critiques, orange marks the escalation model that restarts the task, and green marks the answer.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Pattern</th><th>What happens</th><th>Cost signal</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Single</strong></td><td>The primary model solves the task with tools and answers.</td><td>Like a request to one model</td></tr>
+              <tr><td><strong>Cascade</strong></td><td>The primary model makes a first pass. A secondary judge model accepts that result or escalates, and an escalation model repairs the task from a fresh start.</td><td>An escalation pays for the first pass, the judge, and the repair</td></tr>
+              <tr><td><strong>Critique</strong></td><td>The primary model drafts. A read-only critic approves the draft as-is or asks for a revision, which the primary model makes.</td><td>Adds critic calls; revision stays on the primary model and its cache</td></tr>
+            </tbody>
+          </table></div>
+          <p>The critic can't edit files; it only describes flaws. If its feedback isn't usable, Fusion keeps the draft. The current documentation describes multiple parallel critics whose feedback is combined before revision. Fusion adds model calls only when a task warrants them, so Cascade and Critique take longer and can cost more than Single.</p>
           <ul>
             <li>Fusion keeps the main conversation on the same model whenever possible, so it keeps benefiting from cached tokens. Assisting models receive only the context they need.</li>
             <li>Fusion works separately from subagents and doesn't start them.</li>
             <li>If Fusion discards a draft, file edits that draft already made are not undone automatically. Review changes before you commit.</li>
           </ul>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/" target="_blank" rel="noopener">Original execution-pattern illustration</a> &middot; <a href="https://docs.github.com/copilot/concepts/models/copilot-fusion#how-copilot-fusion-works" target="_blank" rel="noopener">How Copilot Fusion works</a></div>
         </section>
 
         <section id="manual" class="section-card reveal">
@@ -126,6 +174,7 @@ flowchart LR
       <aside class="toc" aria-label="Table of contents">
         <h3>On This Page</h3>
         <a href="#routing">Automatic Routing</a>
+        <a href="#fusion-effort">Fusion Effort Levels</a>
         <a href="#how-it-works">How Fusion Executes</a>
         <a href="#manual">When to Choose Manually</a>
         <a href="#full-cost">Cost per Accepted Outcome</a>
