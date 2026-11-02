@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trainer Hub &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Trainer materials for the GitHub Copilot AI Credit Optimization workshop: invite text, agenda and timing, preflight checklist, and shortcuts." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="trainer">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Workshop Home</a><span class="sep">/</span><span>Trainer Hub</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Trainer Hub</h1>
+      <p class="subtitle">Delivery materials for running this workshop: invite text, agenda and timing, preflight checks, and shortcuts.</p>
+      <div class="audience"><span>Trainers</span><span>Facilitators</span><span>Workshop owners</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="invite-template" class="section-card reveal">
+          <h2>Attendee Invite (Copy/Paste)</h2>
+          <p>Use this text in a calendar invite or email. Replace the placeholders before sending.</p>
+          <pre class="code" data-lang="text">GitHub Copilot AI Credit Optimization (Developer Workshop, L400)
+
+GitHub Copilot now bills chat, agent, CLI, and cloud agent usage in AI credits, priced by tokens and model. This hands-on workshop shows developers and architects how to get more verified work from every credit without lowering quality.
+
+What we will cover:
+- How tokens become AI credits, and which Copilot features are billed
+- Choosing the smallest sufficient interface for each task
+- Lean context: instructions, customizations, tools, and Copilot Memory
+- Sessions, prompt caching, compaction, and AI credit session limits
+- Model strategy: Copilot Fusion and Auto, reasoning effort, subagents, cost per accepted outcome
+- Four hands-on labs in VS Code and GitHub Copilot CLI
+
+Who should attend:
+- Developers, tech leads, and architects who use Copilot Chat, agent sessions, or Copilot CLI daily
+
+Before the session:
+- Paid Copilot plan (Business or Enterprise recommended), with Copilot CLI allowed by policy
+- VS Code 1.120+ and Copilot CLI 1.0.48+, both signed in
+- Git and Python 3.10+
+- Note: labs use a small amount of your AI credit allowance
+
+Duration: about 4 hours including breaks
+Workshop site: &lt;workshop-site-url&gt;</pre>
+        </section>
+
+        <section id="agenda" class="section-card reveal">
+          <h2>Agenda and Timing</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Block</th><th>Content</th><th>Duration</th></tr></thead>
+            <tbody>
+              <tr><td>Opening</td><td><a href="../topics/overview.html">Overview</a> and <a href="../topics/ai-credits-fundamentals.html">AI Credits Fundamentals</a></td><td>20 min</td></tr>
+              <tr><td>Concepts</td><td><a href="../topics/right-interface.html">Choosing the Right Interface</a></td><td>10 min</td></tr>
+              <tr><td>Hands-on</td><td><a href="../labs/lab01-measure-baseline.html">Lab 01: Measure Your Baseline</a></td><td>25 min</td></tr>
+              <tr><td>Concepts</td><td><a href="../topics/context-efficiency.html">Context and Prompt Efficiency</a>, <a href="../topics/customization-cost.html">Customizations</a>, <a href="../topics/copilot-memory.html">Copilot Memory</a></td><td>25 min</td></tr>
+              <tr><td>Break</td><td></td><td>10 min</td></tr>
+              <tr><td>Hands-on</td><td><a href="../labs/lab02-lean-context-vscode.html">Lab 02: Lean Context, Instructions, and Tools</a></td><td>35 min</td></tr>
+              <tr><td>Concepts</td><td><a href="../topics/sessions-and-caching.html">Sessions, Caching, and Compaction</a> and <a href="../topics/session-limits.html">Session Limits</a></td><td>15 min</td></tr>
+              <tr><td>Hands-on</td><td><a href="../labs/lab03-session-control-cli.html">Lab 03: Sessions and Spend Control</a></td><td>30 min</td></tr>
+              <tr><td>Break</td><td></td><td>10 min</td></tr>
+              <tr><td>Concepts</td><td><a href="../topics/model-strategy.html">Model Strategy</a> and <a href="../topics/measure-and-improve.html">Measure and Improve</a></td><td>15 min</td></tr>
+              <tr><td>Hands-on</td><td><a href="../labs/lab04-model-evaluation.html">Lab 04: Model Strategy and Evaluation</a></td><td>35 min</td></tr>
+              <tr><td>Wrap-up</td><td>Habit plans, Q&amp;A, next steps</td><td>5 min</td></tr>
+              <tr><td><strong>Total</strong></td><td></td><td><strong>3 h 55 min</strong></td></tr>
+            </tbody>
+          </table></div>
+          <div class="callout"><strong>Note:</strong> for a 3-hour slot, assign Lab 04 Steps 5 and 6 as homework and shorten breaks to 5 minutes.</div>
+        </section>
+
+        <section id="preflight" class="section-card reveal">
+          <h2>Preflight Checklist</h2>
+          <ul class="checklist">
+            <li>Re-verify volatile facts against the linked sources: Copilot Fusion and Auto discounts and availability (the 30% Fusion discount ends 2026-11-30), cache expiry windows, pricing rows used in examples, Copilot Memory expiry and defaults, session-limit minimum and scope.</li>
+            <li>Update <code>resources/content-plan.md</code> corrections and the What's New page if anything changed.</li>
+            <li>Replace <code>&lt;workshop-repo-url&gt;</code> in your delivery notes with the repository attendees will clone.</li>
+            <li>Confirm attendees' organizations allow Copilot CLI and the models used in the labs, and that a reasonable share of the monthly AI credit allowance is available.</li>
+            <li>Dry-run all four labs on the current VS Code and Copilot CLI versions; note any UI label changes.</li>
+            <li>Capture fresh screenshots of the context window control, response credit hover, <strong>Configure Tools</strong>, <code>/context</code>, and <code>/usage</code> for slides if needed.</li>
+            <li>Share the <a href="https://thomasiverson.github.io/gh-workshops/github-copilot-token-developer/lab/" target="_blank" rel="noopener">Module 2 lab guide</a> as the paper fallback for attendees without live access.</li>
+          </ul>
+        </section>
+
+        <section id="shortcuts" class="section-card reveal">
+          <h2>Trainer Shortcuts</h2>
+          <ul>
+            <li><a href="detailed-training-guide.html">Detailed training guide</a></li>
+            <li><a href="../labs/index.html">Labs overview</a></li>
+            <li><a href="https://thomasiverson.github.io/gh-workshops/github-copilot-token-developer/workshop/" target="_blank" rel="noopener">Source workshop guide (Module 2)</a></li>
+          </ul>
+        </section>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#invite-template">Attendee Invite</a>
+        <a href="#agenda">Agenda and Timing</a>
+        <a href="#preflight">Preflight Checklist</a>
+        <a href="#shortcuts">Shortcuts</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

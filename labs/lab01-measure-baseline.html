@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 01: Measure Your Baseline &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Set up the lab project, run one task with a vague prompt in VS Code and Copilot CLI, and record the AI credits and context it consumed as your baseline." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="lab01-measure-baseline">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><a href="index.html">Labs</a><span class="sep">/</span><span>Lab 01</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Lab 01: Measure Your Baseline</h1>
+      <p class="subtitle">Before you optimize anything, measure it. Run one task the way many developers do today and record what it cost in VS Code and in Copilot CLI.</p>
+      <div class="badge-row"><span class="badge">VS Code + Copilot CLI</span><span class="badge">L400</span><span class="badge">~25 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="scenario" class="section-card reveal">
+          <h2>Scenario and Objectives</h2>
+          <p>Your team's order-processing package has a failing test. You'll fix it with a short, vague prompt, the way it often happens under time pressure, and capture the cost so later labs have something to beat.</p>
+          <ul>
+            <li>Set up a private, resettable copy of the lab project.</li>
+            <li>Run task T1 with a vague prompt in a VS Code agent session and record credits and context.</li>
+            <li>Run the same task in Copilot CLI and record <code>/usage</code> and <code>/context</code>.</li>
+            <li>Compare what fills the context window in each tool.</li>
+          </ul>
+          <div class="callout"><strong>Related topics:</strong> <a href="../topics/ai-credits-fundamentals.html">AI Credits Fundamentals</a> &middot; <a href="../topics/right-interface.html">Choosing the Right Interface</a> &middot; <a href="../topics/measure-and-improve.html">Measure and Improve</a></div>
+        </section>
+
+        <section id="architecture" class="section-card reveal">
+          <h2>Architecture</h2>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    REPO[(credit-lab copy)] --> VS[VS Code agent]
+    REPO --> CLI[Copilot CLI]
+    VS --> M[Model]
+    CLI --> M
+    VS -->|hover and context control| WS[(Results worksheet)]
+    CLI -->|usage and context| WS
+    class REPO,WS data
+    class VS,CLI azure
+    class M accent
+            </pre>
+          </div>
+          <p class="diagram-caption">The same task runs through both tools against the same files. You record each run in your results worksheet, kept outside the repository so resets don't touch it.</p>
+        </section>
+
+        <section id="prerequisites" class="section-card reveal">
+          <h2>Prerequisites and Names</h2>
+          <ul>
+            <li>Visual Studio Code 1.120 or later, signed in to GitHub Copilot.</li>
+            <li>Copilot CLI 1.0.48 or later, signed in with <code>copilot login</code>.</li>
+            <li>Git and Python 3.10 or later.</li>
+            <li>A copy of the workshop repository. Your facilitator provides <code>&lt;workshop-repo-url&gt;</code>.</li>
+          </ul>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Item</th><th>Name or path</th></tr></thead>
+            <tbody>
+              <tr><td>Lab working copy</td><td><code>~/credit-lab</code></td></tr>
+              <tr><td>Task set</td><td><code>tasks/task-set.md</code></td></tr>
+              <tr><td>Results worksheet</td><td><code>~/credit-lab-results.md</code> (copied from <code>worksheets/results.md</code>)</td></tr>
+              <tr><td>Stash labels</td><td><code>lab01-vscode</code>, <code>lab01-cli</code></td></tr>
+            </tbody>
+          </table></div>
+          <div class="callout warning"><strong>Important:</strong> this lab sends real requests and consumes AI credits. Keep to the steps, and don't paste secrets, credentials, or customer data into any prompt.</div>
+          <div class="callout"><strong>No live access?</strong> Use the supplied scenarios in the <a href="https://thomasiverson.github.io/gh-workshops/github-copilot-token-developer/lab/" target="_blank" rel="noopener">Module 2 lab guide</a> and record your answers in the same worksheet.</div>
+        </section>
+
+        <section id="build" class="section-card reveal">
+          <h2>Build</h2>
+          <h3>Step 1: Check your client versions</h3>
+          <ol>
+            <li>In VS Code, select <strong>Help</strong> &gt; <strong>About</strong> and confirm the version is 1.120 or later.</li>
+            <li>In a terminal, run <code>copilot version</code> and confirm 1.0.48 or later. Run <code>copilot update</code> if it is older.</li>
+          </ol>
+          <p>Older clients still work but can show incorrect pricing and usage information, which would make your measurements unreliable.</p>
+
+          <h3>Step 2: Create a resettable working copy</h3>
+          <ol>
+            <li>Clone the workshop repository and copy the sample project out of it.</li>
+            <li>Initialize a Git repository in the copy and commit the baseline.</li>
+            <li>Copy the results worksheet next to the working copy, not inside it, so <code>git stash</code> never hides your notes.</li>
+            <li>Run the tests.</li>
+          </ol>
+          <span class="code-label">PowerShell</span>
+          <pre class="code" data-lang="powershell">git clone &lt;workshop-repo-url&gt; workshop
+Copy-Item -Recurse workshop/samples/credit-lab $HOME/credit-lab
+Copy-Item workshop/samples/credit-lab/worksheets/results.md $HOME/credit-lab-results.md
+Set-Location $HOME/credit-lab
+git init
+git add .
+git commit -m "baseline"
+python -m unittest</pre>
+          <span class="code-label">bash</span>
+          <pre class="code" data-lang="bash">git clone &lt;workshop-repo-url&gt; workshop
+cp -r workshop/samples/credit-lab ~/credit-lab
+cp workshop/samples/credit-lab/worksheets/results.md ~/credit-lab-results.md
+cd ~/credit-lab
+git init &amp;&amp; git add . &amp;&amp; git commit -m "baseline"
+python3 -m unittest</pre>
+          <p>Expected result: <code>Ran 8 tests</code> and <code>FAILED (failures=1)</code> for <code>test_bulk_discount_applied_before_tax</code>.</p>
+
+          <h3>Step 3: Run the vague prompt in VS Code</h3>
+          <ol>
+            <li>Open <code>~/credit-lab</code> in VS Code and open the Chat view.</li>
+            <li>Start a new agent session. In the model picker, select <strong>Copilot Fusion</strong> with <strong>Fusion Standard</strong>. If your picker shows <strong>Auto</strong> instead, select <strong>Auto</strong>. Note the choice in the worksheet.</li>
+            <li>Leave tools and reasoning at their defaults. Send exactly this prompt:
+              <pre class="code" data-lang="text">fix the tests</pre></li>
+            <li>Approve tool calls as prompted until the agent finishes.</li>
+            <li>Hover over each response and add up the AI credits per turn.</li>
+            <li>Hover over the context window control in the chat input. Record the total context tokens, the session's total credits, and the largest categories.</li>
+            <li>In a terminal, run <code>python -m unittest</code> and record whether all tests pass, and how many follow-up prompts you needed.</li>
+          </ol>
+
+          <h3>Step 4: Reset the working copy</h3>
+          <ol>
+            <li>Save the attempt and return to the baseline:
+              <pre class="code" data-lang="bash">git stash push -u -m "lab01-vscode"</pre></li>
+            <li>Confirm <code>git status</code> shows a clean working tree.</li>
+          </ol>
+
+          <h3>Step 5: Run the same prompt in Copilot CLI</h3>
+          <ol>
+            <li>In a terminal at <code>~/credit-lab</code>, run <code>copilot</code>. Trust the folder when asked.</li>
+            <li>Run <code>/model</code> and choose the same option you used in VS Code.</li>
+            <li>Send <code>fix the tests</code> and approve tool calls until the agent finishes.</li>
+            <li>Run <code>/usage</code>. Record the AI credits for each model row.</li>
+            <li>Run <code>/context</code>. Record the total tokens and the values for <strong>Custom Instructions</strong>, <strong>System Tools</strong>, <strong>MCP Tools</strong>, and <strong>Messages</strong>.</li>
+            <li>Exit with <code>/exit</code>, run the tests, then save the attempt with <code>git stash push -u -m "lab01-cli"</code>.</li>
+          </ol>
+          <figure class="media-panel">
+            <div class="diagram-wrap">
+              <pre class="mermaid">
+flowchart LR
+    T[Total context] --> CI[Custom Instructions]
+    T --> ST[System Tools]
+    T --> MT[MCP Tools]
+    T --> MS[Messages]
+    class T azure
+    class CI,ST,MT warning
+    class MS data
+              </pre>
+            </div>
+            <figcaption>The <code>/context</code> categories to record. Orange categories repeat on every turn; you reduce them in Labs 02 and 03.</figcaption>
+          </figure>
+        </section>
+
+        <section id="test" class="section-card reveal">
+          <h2>Test and Verify</h2>
+          <pre class="code" data-lang="bash">git stash list</pre>
+          <ul class="checklist">
+            <li><code>git stash list</code> shows <code>lab01-vscode</code> and <code>lab01-cli</code>.</li>
+            <li><code>git status</code> shows a clean working tree at the baseline commit.</li>
+            <li>The worksheet has two Lab 01 rows with credits, context tokens, pass or fail, and rework turns.</li>
+            <li>You can name the largest recurring context category in each tool.</li>
+          </ul>
+          <details class="solution">
+            <summary>What to look for in your results</summary>
+            <p>A vague prompt usually makes the agent search the repository, read several files, and sometimes edit the test instead of the code. Notice how much of the context is instructions and tool schemas before your prompt is even read. The sample's <code>.github/copilot-instructions.md</code> is deliberately bloated; you fix that in Lab 02.</p>
+          </details>
+        </section>
+
+        <section id="troubleshoot" class="section-card reveal">
+          <h2>Troubleshooting</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Symptom</th><th>Check</th></tr></thead>
+            <tbody>
+              <tr><td><code>python</code> is not found</td><td>Use <code>python3</code> or <code>py</code>, or install Python 3.10 or later.</td></tr>
+              <tr><td>No credits appear on hover</td><td>Update VS Code to 1.120 or later; older versions may not show usage.</td></tr>
+              <tr><td><code>/usage</code> shows no AI credit values</td><td>Update Copilot CLI; credit values appear for token-based-billing accounts.</td></tr>
+              <tr><td>Copilot Fusion isn't in the picker</td><td>Use <strong>Auto</strong> or the default model, and use the same choice in both tools.</td></tr>
+              <tr><td>The agent edited the test instead of the code</td><td>Record it as a failed attempt. That outcome is part of the baseline.</td></tr>
+            </tbody>
+          </table></div>
+        </section>
+
+        <section id="cleanup" class="section-card reveal">
+          <h2>Cleanup and References</h2>
+          <p>Keep <code>~/credit-lab</code> and the stashes for the next labs. No cloud resources were created; the only cost is the AI credits the two runs consumed.</p>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://code.visualstudio.com/docs/agents/guides/optimize-usage#_monitor-your-usage" target="_blank" rel="noopener">Monitor your usage in VS Code</a> &middot; <a href="https://docs.github.com/copilot/reference/copilot-cli-reference/cli-command-reference" target="_blank" rel="noopener">Copilot CLI command reference</a> &middot; <a href="https://docs.github.com/copilot/concepts/agents/copilot-cli/context-management" target="_blank" rel="noopener">Managing context for GitHub Copilot</a></div>
+        </section>
+
+        <nav class="pager" aria-label="Lab pagination">
+          <a class="prev" href="index.html"><small>Previous</small><strong>&larr; Hands-on Labs</strong></a>
+          <a class="next" href="lab02-lean-context-vscode.html"><small>Next</small><strong>Lab 02: Lean Context &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#scenario">Scenario</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#prerequisites">Prerequisites</a>
+        <a href="#build">Build</a>
+        <a href="#test">Test and Verify</a>
+        <a href="#troubleshoot">Troubleshooting</a>
+        <a href="#cleanup">Cleanup</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

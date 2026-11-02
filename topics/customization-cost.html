@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Always-On vs. On-Demand Customizations &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Know which Copilot customizations add context to every turn, keep instructions short and grounded, move detail on demand, and prune tools and MCP servers." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="customization-cost">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Topics</span><span class="sep">/</span><a href="context-efficiency.html">Context and Prompt Efficiency</a><span class="sep">/</span><span>Customizations</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Always-On vs. On-Demand Customizations</h1>
+      <p class="subtitle">More customization is not automatically more cost per turn. The recurring cost sits in always-on instructions and enabled tool schemas.</p>
+      <div class="badge-row"><span class="badge">Instructions</span><span class="badge">Tools and MCP</span><span class="badge">~12 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="trigger" class="section-card reveal">
+          <h2>When Each Customization Enters Context</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Customization</th><th>Triggered</th><th>Cost pattern</th></tr></thead>
+            <tbody>
+              <tr><td>Custom instructions: <code>.github/copilot-instructions.md</code>, <code>AGENTS.md</code>, path-specific <code>*.instructions.md</code>, personal and organization instructions</td><td>Automatically, on every interaction in scope</td><td><span class="chip chip-warning">Recurring</span></td></tr>
+              <tr><td>Enabled built-in and MCP tool schemas</td><td>Automatically advertised to the model</td><td><span class="chip chip-warning">Recurring</span> grows with tool count</td></tr>
+              <tr><td>Prompt files (<code>.github/prompts/*.prompt.md</code>)</td><td>Manually, when you reference or pick one</td><td><span class="chip chip-success">On demand</span></td></tr>
+              <tr><td>Agent skills (<code>SKILL.md</code>)</td><td>When Copilot judges the skill relevant, or you invoke it</td><td><span class="chip chip-success">On demand</span> body loads only when used</td></tr>
+              <tr><td>Custom agents (<code>.github/agents/</code>)</td><td>Selected from the agent picker, or delegated to</td><td><span class="chip chip-info">Scoped</span> own instructions and tools</td></tr>
+              <tr><td>Subagents</td><td>Spawned by the main agent for delegated work</td><td><span class="chip chip-info">Isolated</span> separate context window</td></tr>
+              <tr><td>Hooks (<code>.github/hooks/*.json</code>)</td><td>At configured lifecycle events</td><td>Shell commands; output enters context only when returned</td></tr>
+            </tbody>
+          </table></div>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    subgraph EVERY[Every turn]
+        INS[Instructions]
+        TOOLS[Tool schemas]
+    end
+    subgraph DEMAND[Only when used]
+        PF[Prompt files]
+        SK[Skills]
+        AG[Custom agents]
+        SUB[Subagents]
+    end
+    INS --> CTX[Main context]
+    TOOLS --> CTX
+    PF -.-> CTX
+    SK -.-> CTX
+    AG -.->|own context| X[Scoped context]
+    SUB -.->|own context| X
+    class INS,TOOLS warning
+    class PF,SK success
+    class AG,SUB accent
+    class CTX azure
+    class X neutral
+            </pre>
+          </div>
+          <p class="diagram-caption">Orange adds to every request. Green loads only when used. Purple runs in its own context instead of growing the main thread.</p>
+          <div class="takeaway"><h3>Key takeaway</h3><p>Move detail out of always-on instructions into a path-scoped instruction, prompt file, skill, or custom agent. You keep the capability and remove it from every turn.</p></div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/reference/customization-cheat-sheet" target="_blank" rel="noopener">Copilot customization cheat sheet</a></div>
+        </section>
+
+        <section id="instructions" class="section-card reveal">
+          <h2>What Good Instructions Contain</h2>
+          <p>Repository instructions are included on every run, so keep them short, specific, and grounded in behavior you have actually observed.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Include</th><th>Avoid</th></tr></thead>
+            <tbody>
+              <tr><td>Required frameworks, libraries, or patterns</td><td>Long, generic documentation</td></tr>
+              <tr><td>Known pitfalls the agent tends to repeat</td><td>AI-generated guidance that doesn't reflect your system</td></tr>
+              <tr><td>Output expectations (&ldquo;be concise&rdquo;, &ldquo;only return code&rdquo;)</td><td>One-off preferences or rarely used details</td></tr>
+              <tr><td>Team conventions the agent must follow</td><td>Overloaded instructions that make context noisy</td></tr>
+              <tr><td>Build, test, and lint commands</td><td>Detail that belongs in a scoped instruction, prompt file, or skill</td></tr>
+            </tbody>
+          </table></div>
+          <p>A path-specific instruction uses an <code>applyTo</code> glob so it loads only for matching files:</p>
+          <span class="code-label">.github/instructions/reports.instructions.md</span>
+          <pre class="code" data-lang="yaml">---
+applyTo: "orders/report.py"
+---
+Text reports use fixed-width columns. JSON reports serialize Decimal values as two-decimal strings.</pre>
+          <div class="callout success"><strong>Tip:</strong> in Copilot CLI, <code>/chronicle improve</code> looks for friction in your session history and suggests instruction changes grounded in what actually went wrong.</div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/tutorials/optimize-ai-usage#7-utilize-learnings-to-be-more-efficient-at-every-turn" target="_blank" rel="noopener">Keep the instructions file specific and grounded</a></div>
+        </section>
+
+        <section id="tools" class="section-card reveal">
+          <h2>Prune Tools and MCP Servers</h2>
+          <p>A full MCP server's tool catalog adds schemas to every request. Enable only the tool sets the task needs, and decide before the session starts: changing enabled tools mid-session invalidates the prompt cache.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Where</th><th>How</th></tr></thead>
+            <tbody>
+              <tr><td>VS Code</td><td>Select <strong>Configure Tools</strong> in the chat input to choose tools and MCP servers for the request. In custom agents, set a narrow <code>tools</code> list.</td></tr>
+              <tr><td>Copilot CLI: visibility</td><td><code>--available-tools</code> and <code>--excluded-tools</code> control which tools the model can see.</td></tr>
+              <tr><td>Copilot CLI: approval</td><td><code>--allow-tool</code> and <code>--deny-tool</code> control whether a visible tool runs without asking. Deny rules always win, even with <code>--allow-all</code>.</td></tr>
+              <tr><td>Copilot CLI: MCP</td><td><code>--disable-builtin-mcps</code>, <code>--disable-mcp-server NAME</code>, and <code>--add-github-mcp-toolset</code> to widen the GitHub MCP server only when needed.</td></tr>
+            </tbody>
+          </table></div>
+          <p>Use <code>/context</code> to see the split between <strong>Custom Instructions</strong>, <strong>System Tools</strong>, <strong>MCP Tools</strong>, and <strong>Messages</strong> before you trim anything. <code>/env</code> lists the loaded instructions, MCP servers, skills, and agents, and <code>/instructions</code> toggles individual instruction files.</p>
+          <h3>Subagents and repository instructions</h3>
+          <p>In Copilot CLI, a custom agent spawned as a subagent doesn't receive <code>copilot-instructions.md</code>, <code>AGENTS.md</code>, or <code>CLAUDE.md</code> unless its frontmatter sets <code>include-custom-instructions: true</code>. Leave it off for agents that only search or summarize; turn it on for agents that must follow your conventions.</p>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://code.visualstudio.com/docs/agents/guides/optimize-usage#_keep-the-tool-catalog-focused" target="_blank" rel="noopener">Keep the tool catalog focused</a> &middot; <a href="https://docs.github.com/copilot/reference/copilot-cli-reference/cli-command-reference" target="_blank" rel="noopener">Copilot CLI command reference</a></div>
+        </section>
+
+        <section id="next" class="section-card reveal">
+          <h2>Next Steps</h2>
+          <ul>
+            <li>Continue with <a href="copilot-memory.html">Copilot Memory Hygiene</a>.</li>
+            <li>Trim a real instructions file and tool set in <a href="../labs/lab02-lean-context-vscode.html">Lab 02</a>, then narrow CLI tools in <a href="../labs/lab03-session-control-cli.html">Lab 03</a>.</li>
+          </ul>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="context-efficiency.html"><small>Previous</small><strong>&larr; Context and Prompt Efficiency</strong></a>
+          <a class="next" href="copilot-memory.html"><small>Next</small><strong>Copilot Memory Hygiene &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#trigger">When Each Enters Context</a>
+        <a href="#instructions">Good Instructions</a>
+        <a href="#tools">Prune Tools and MCP</a>
+        <a href="#next">Next Steps</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

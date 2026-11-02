@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hands-on Labs &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Four progressive labs in VS Code and Copilot CLI: measure a baseline, trim context, control sessions and spend, and evaluate model choices with evidence." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="labs">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Labs</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Hands-on Labs</h1>
+      <p class="subtitle">Apply each optimization to one small Python project and measure the difference against your own baseline.</p>
+      <div class="badge-row"><span class="badge">4 guided labs</span><span class="badge">VS Code + Copilot CLI</span><span class="badge">~125 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="choose" class="section-card reveal">
+          <h2>How the Labs Work</h2>
+          <p>Complete the labs in order. Each one builds on the previous lab's working copy and adds rows to the same results worksheet, so Lab 04 can compare everything you changed.</p>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    L1[Lab 01 Baseline] --> L2[Lab 02 Lean context]
+    L2 --> L3[Lab 03 Sessions and limits]
+    L3 --> L4[Lab 04 Model evaluation]
+    L1 -.-> WS[(Results worksheet)]
+    L2 -.-> WS
+    L3 -.-> WS
+    L4 -.-> WS
+    class L1 azure
+    class L2 success
+    class L3 warning
+    class L4 accent
+    class WS data
+            </pre>
+          </div>
+          <div class="callout warning"><strong>Important:</strong> the labs send real requests and consume AI credits from your allowance. Keep prompts to the ones provided, and use the session limit from Lab 03 for any extra experiments.</div>
+          <div class="callout"><strong>No live access?</strong> Each lab links to the supplied-data exercise in the <a href="https://thomasiverson.github.io/gh-workshops/github-copilot-token-developer/lab/" target="_blank" rel="noopener">Module 2 lab guide</a> that covers the same decision on paper.</div>
+        </section>
+
+        <section id="catalog" class="section-card reveal">
+          <h2>Lab Catalog</h2>
+          <div class="cheat">
+            <div class="cheat-item tone-blue">
+              <h3><a href="lab01-measure-baseline.html">Lab 01: Measure Your Baseline</a></h3>
+              <p>Set up the project and record what a vague prompt costs in VS Code and Copilot CLI.</p>
+              <p><strong>Tool:</strong> VS Code + CLI &middot; <strong>Time:</strong> ~25 min</p>
+            </div>
+            <div class="cheat-item tone-green">
+              <h3><a href="lab02-lean-context-vscode.html">Lab 02: Lean Context, Instructions, and Tools</a></h3>
+              <p>Trim always-on instructions, move detail on demand, exclude noise, prune tools, and rerun with a scoped prompt.</p>
+              <p><strong>Tool:</strong> VS Code &middot; <strong>Time:</strong> ~35 min</p>
+            </div>
+            <div class="cheat-item tone-orange">
+              <h3><a href="lab03-session-control-cli.html">Lab 03: Sessions and Spend Control</a></h3>
+              <p>Narrow tools, cap spend, plan then hand off, compact a long thread, and run a capped prompt.</p>
+              <p><strong>Tool:</strong> Copilot CLI &middot; <strong>Time:</strong> ~30 min</p>
+            </div>
+            <div class="cheat-item tone-purple">
+              <h3><a href="lab04-model-evaluation.html">Lab 04: Model Strategy and Evaluation</a></h3>
+              <p>Compare two model arms by cost per accepted outcome, try a cheaper subagent, and write a habit plan.</p>
+              <p><strong>Tool:</strong> VS Code + CLI &middot; <strong>Time:</strong> ~35 min</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="prerequisites" class="section-card reveal">
+          <h2>Common Prerequisites</h2>
+          <ul>
+            <li>A GitHub account with a paid Copilot plan, and no policy blocking Copilot CLI or the models you plan to use.</li>
+            <li>Visual Studio Code 1.120 or later and Copilot CLI 1.0.48 or later, both signed in.</li>
+            <li>Git and Python 3.10 or later. The sample project uses only the standard library.</li>
+            <li>The workshop repository URL from your facilitator, <code>&lt;workshop-repo-url&gt;</code>. The sample project is in <code>samples/credit-lab</code>.</li>
+          </ul>
+          <div class="takeaway"><h3>Security</h3><p>Never paste credentials, tokens, customer data, or confidential source into prompts, instruction files, or memory. The sample project contains none.</p></div>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="../topics/measure-and-improve.html"><small>Previous</small><strong>&larr; Measure and Improve</strong></a>
+          <a class="next" href="lab01-measure-baseline.html"><small>Start the labs</small><strong>Lab 01: Measure Your Baseline &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#choose">How the Labs Work</a>
+        <a href="#catalog">Lab Catalog</a>
+        <a href="#prerequisites">Common Prerequisites</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

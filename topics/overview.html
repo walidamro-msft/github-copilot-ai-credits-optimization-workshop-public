@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Why usage-based billing changes everyday Copilot habits, what you will be able to do after this workshop, and how the modules and labs fit together." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="overview">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Topics</span><span class="sep">/</span><span>Overview</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Overview</h1>
+      <p class="subtitle">Why AI credits change how you work with GitHub Copilot, what you will practice, and the mental model every module builds on.</p>
+      <div class="badge-row"><span class="badge">Start here</span><span class="badge">L400</span><span class="badge">~10 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="why" class="section-card reveal">
+          <h2>Why This Workshop Exists</h2>
+          <div class="quote-card">
+            <p>When you use Copilot, the interaction consumes tokens: input tokens (what's sent to the model), output tokens (what the model generates), and cached tokens (context the model reuses or stores). Each token is priced based on the model used, and the total is converted into AI credits, where 1 AI credit = $0.01 USD.</p>
+            <cite>Source: GitHub Docs, Models and pricing for GitHub Copilot</cite>
+          </div>
+          <p>Under usage-based billing, two requests that look identical in the chat window can cost very different amounts. The difference comes from what you send (prompt, files, history, tool schemas), which model answers, how much reasoning it does, and how much it writes back.</p>
+          <p>This workshop gives you a practical playbook for the part you control as a developer or architect: interface choice, context, sessions, and models. Budgets and policies set by administrators bound total spend; your habits decide how much verified work each credit buys.</p>
+          <div class="cheat">
+            <div class="cheat-item tone-blue"><h3>Measure tokens, not requests</h3><p>Cost follows input, cached input, cache writes, and output, priced per model.</p></div>
+            <div class="cheat-item tone-green"><h3>Optimize verified outcomes</h3><p>Judge cost per accepted, working result, not cost per turn.</p></div>
+            <div class="cheat-item tone-orange"><h3>Trim the unnecessary</h3><p>Cut repeated context and wasted turns without cutting the context the model needs.</p></div>
+          </div>
+        </section>
+
+        <section id="mental-model" class="section-card reveal">
+          <h2>Replace the Premium-Request Mental Model</h2>
+          <p>If you used Copilot before usage-based billing, you probably counted premium requests and memorized model multipliers. Those habits no longer explain cost.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Old habit</th><th>New habit</th></tr></thead>
+            <tbody>
+              <tr><td>Count premium requests</td><td>Measure tokens and AI credits</td></tr>
+              <tr><td>Treat a request as one visible cost unit</td><td>Account for prompt, context, history, tools, and output</td></tr>
+              <tr><td>Memorize model multipliers</td><td>Read per-model, per-token-category pricing</td></tr>
+              <tr><td>Minimize request count</td><td>Minimize cost per completed, verified task</td></tr>
+            </tbody>
+          </table></div>
+          <div class="callout warning"><strong>Important:</strong> shorter is not automatically cheaper. A prompt that omits needed context triggers follow-up turns that cost more in total than one well-scoped request.</div>
+        </section>
+
+        <section id="path" class="section-card reveal">
+          <h2>How the Workshop Fits Together</h2>
+          <p>Each module targets one lever on the cost of a task. The labs apply them in order to one small Python project so you can compare results before and after each change.</p>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    A[AI credits basics] --> B[Right interface]
+    B --> C[Lean context]
+    C --> D[Sessions and cache]
+    D --> E[Model strategy]
+    E --> F[Measure and improve]
+    F -.->|next task| B
+    class A warning
+    class B,C success
+    class D warning
+    class E accent
+    class F azure
+            </pre>
+          </div>
+          <p class="diagram-caption">Green modules reduce what you send, orange modules control how cost accumulates, purple chooses who answers, and blue closes the loop with measurement.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Module</th><th>You learn to</th><th>Practiced in</th></tr></thead>
+            <tbody>
+              <tr><td><a href="ai-credits-fundamentals.html">AI Credits Fundamentals</a></td><td>Read a pricing table and know which features are billed</td><td><a href="../labs/lab01-measure-baseline.html">Lab 01</a></td></tr>
+              <tr><td><a href="right-interface.html">Choosing the Right Interface</a></td><td>Pick the smallest sufficient interface</td><td><a href="../labs/lab01-measure-baseline.html">Lab 01</a></td></tr>
+              <tr><td><a href="context-efficiency.html">Context and Prompt Efficiency</a></td><td>Send the smallest authoritative context with a clear stop condition</td><td><a href="../labs/lab02-lean-context-vscode.html">Lab 02</a></td></tr>
+              <tr><td><a href="sessions-and-caching.html">Sessions, Caching, and Compaction</a></td><td>Keep the cache warm and history relevant</td><td><a href="../labs/lab03-session-control-cli.html">Lab 03</a></td></tr>
+              <tr><td><a href="model-strategy.html">Model Strategy</a></td><td>Choose models by cost per accepted outcome</td><td><a href="../labs/lab04-model-evaluation.html">Lab 04</a></td></tr>
+              <tr><td><a href="measure-and-improve.html">Measure and Improve</a></td><td>Prove a change helps with a before/after loop</td><td><a href="../labs/lab04-model-evaluation.html">Lab 04</a></td></tr>
+            </tbody>
+          </table></div>
+        </section>
+
+        <section id="outcomes" class="section-card reveal">
+          <h2>What You Will Be Able to Do</h2>
+          <ul>
+            <li>Explain how tokens become AI credits and which Copilot features consume them.</li>
+            <li>Match each task to the smallest interface that can finish it.</li>
+            <li>Shrink recurring context: lean instructions, scoped customizations, pruned tools, clean search scope, and reviewed memory.</li>
+            <li>Decide when to continue, fork, compact, or start a new session, and hand off work without losing decisions.</li>
+            <li>Cap the spend of a single task with an AI credit session limit in Copilot CLI.</li>
+            <li>Choose models by full cost per accepted outcome and run a before/after evaluation on a fixed task set.</li>
+          </ul>
+          <div class="callout"><strong>Note:</strong> this workshop does not cover administrator budgets, cost centers, or policies. Those controls bound total spend; this workshop covers what you control in each session.</div>
+        </section>
+
+        <section id="prerequisites" class="section-card reveal">
+          <h2>Prerequisites</h2>
+          <ul>
+            <li>A GitHub account with a paid Copilot plan. Copilot Business or Copilot Enterprise is the target audience; the habits also apply to individual plans.</li>
+            <li>Visual Studio Code 1.120 or later and Copilot CLI 1.0.48 or later. Older versions can show incorrect pricing or usage information.</li>
+            <li>Git and Python 3.10 or later for the lab sample project.</li>
+          </ul>
+          <div class="callout warning"><strong>Important:</strong> the labs send real requests and consume AI credits. Each lab keeps the work small, and Lab 03 shows you how to cap a session's spend.</div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/reference/copilot-billing/models-and-pricing" target="_blank" rel="noopener">Models and pricing for GitHub Copilot</a> &middot; <a href="https://docs.github.com/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises" target="_blank" rel="noopener">Usage-based billing for organizations and enterprises</a> &middot; <a href="https://docs.github.com/copilot/tutorials/optimize-ai-usage" target="_blank" rel="noopener">Optimizing your AI usage</a></div>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="../index.html"><small>Previous</small><strong>&larr; Home</strong></a>
+          <a class="next" href="ai-credits-fundamentals.html"><small>Next</small><strong>AI Credits Fundamentals &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#why">Why This Workshop Exists</a>
+        <a href="#mental-model">The New Mental Model</a>
+        <a href="#path">How It Fits Together</a>
+        <a href="#outcomes">What You Will Be Able to Do</a>
+        <a href="#prerequisites">Prerequisites</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

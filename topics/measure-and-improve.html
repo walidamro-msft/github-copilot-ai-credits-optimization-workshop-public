@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Measure and Improve &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Measure credits and context in VS Code and Copilot CLI, prove changes with a before/after loop on a fixed task set, and turn results into a 30-day habit plan." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="measure-and-improve">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Topics</span><span class="sep">/</span><span>Measure and Improve</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Measure and Improve</h1>
+      <p class="subtitle">Every optimization is a hypothesis. Measure it on a fixed task set, change one variable at a time, and keep only what improves cost per accepted outcome.</p>
+      <div class="badge-row"><span class="badge">Measurement</span><span class="badge">Evaluation</span><span class="badge">~10 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="tools" class="section-card reveal">
+          <h2>Measurement Tools</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Tool</th><th>Where</th><th>Use it to</th></tr></thead>
+            <tbody>
+              <tr><td>Response hover</td><td>VS Code chat</td><td>See the AI credits of a single turn</td></tr>
+              <tr><td>Context window control</td><td>VS Code chat input</td><td>See context tokens by category and the session's total credits</td></tr>
+              <tr><td>Agent Debug Logs: Summary</td><td>VS Code</td><td>Compare token usage, tool calls, errors, and duration across runs</td></tr>
+              <tr><td>Agent Debug Logs: Cache Explorer</td><td>VS Code</td><td>Check prompt cache hit rates and reused input tokens</td></tr>
+              <tr><td><code>/usage</code></td><td>Copilot CLI</td><td>Per-model token totals and AI credits for the session</td></tr>
+              <tr><td><code>/context</code></td><td>Copilot CLI, Copilot app</td><td>See what fills the context window and how much space remains</td></tr>
+              <tr><td><code>/chronicle cost-tips</code></td><td>Copilot CLI; <code>/chronicle:cost-tips</code> in VS Code chat</td><td>Get suggestions from your token usage across recent sessions</td></tr>
+              <tr><td><code>/chronicle tips</code> and <code>/chronicle improve</code></td><td>Copilot CLI</td><td>Personalized workflow tips and grounded instruction-file improvements</td></tr>
+            </tbody>
+          </table></div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://code.visualstudio.com/docs/agents/guides/optimize-usage#_monitor-your-usage" target="_blank" rel="noopener">Monitor your usage in VS Code</a> &middot; <a href="https://docs.github.com/copilot/how-tos/copilot-cli/use-copilot-cli/chronicle" target="_blank" rel="noopener">Using Copilot CLI session data</a></div>
+        </section>
+
+        <section id="loop" class="section-card reveal">
+          <h2>The Before/After Loop</h2>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    F[Freeze 5 to 10 tasks] --> H[Hold all else constant]
+    H --> B[Run before arm]
+    B --> C[Change one variable]
+    C --> A[Run after arm]
+    A --> D{Better per accepted outcome?}
+    D -->|Yes| K[Keep]
+    D -->|No| R[Revert or retest]
+    class F,H neutral
+    class B,A azure
+    class C warning
+    class D neutral
+    class K success
+    class R danger
+            </pre>
+          </div>
+          <ol>
+            <li><strong>Freeze the task set:</strong> pick 5&ndash;10 representative tasks and write a one-line acceptance rule for each before running anything.</li>
+            <li><strong>Hold everything constant:</strong> same model, tools, instructions, and session strategy, except the one variable you test.</li>
+            <li><strong>Run the before arm</strong> and record every task.</li>
+            <li><strong>Change exactly one thing</strong> and run the same tasks as the after arm. Run each task more than once if you can, because output is non-deterministic.</li>
+            <li><strong>Compare and decide</strong> on cost per accepted outcome, not credits per attempt.</li>
+          </ol>
+          <h3>Record per task, per arm</h3>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Field</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>AI credits</td><td>The spend side of the comparison</td></tr>
+              <tr><td>Context tokens</td><td>Shows whether the change reduced carried context or only moved it</td></tr>
+              <tr><td>Pass or fail against the acceptance rule</td><td>Keeps &ldquo;cheaper but worse&rdquo; from looking like a win</td></tr>
+              <tr><td>Rework turns</td><td>The cost that cheap-looking options hide</td></tr>
+            </tbody>
+          </table></div>
+          <div class="takeaway"><h3>Key takeaway</h3><p>Adopt a change only when cost per accepted outcome improves and acceptance doesn't drop. A cheaper arm with lower acceptance is a regression. Five to ten tasks give a directional answer for a habit decision, not an organization-wide statistic.</p></div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://code.visualstudio.com/docs/agents/guides/optimize-usage#_inspect-token-usage-and-caching" target="_blank" rel="noopener">Inspect token usage and caching</a></div>
+        </section>
+
+        <section id="habits" class="section-card reveal">
+          <h2>Make It Stick: A 30-Day Habit Plan</h2>
+          <p>Small, consistent changes outperform an ambitious plan nobody follows. Pick three habits, name when you apply each one, and decide how you will know in 30 days whether it worked.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Habit</th><th>When I apply it</th><th>How I'll know it worked</th></tr></thead>
+            <tbody>
+              <tr><td>End agent prompts with a stop condition</td><td>Every agent or CLI task</td><td>Fewer rework turns per task in <code>/chronicle cost-tips</code></td></tr>
+              <tr><td>New session per unrelated task</td><td>When the topic changes</td><td>Lower average context per session</td></tr>
+              <tr><td>Keep <code>copilot-instructions.md</code> under one screen</td><td>Monthly review, or after <code>/chronicle improve</code></td><td>Smaller <strong>Custom Instructions</strong> share in <code>/context</code></td></tr>
+            </tbody>
+          </table></div>
+        </section>
+
+        <section id="next" class="section-card reveal">
+          <h2>Next Steps</h2>
+          <ul>
+            <li>Run the full loop in <a href="../labs/lab04-model-evaluation.html">Lab 04: Model Strategy and Evaluation</a>, starting from the <a href="../labs/index.html">labs overview</a>.</li>
+            <li>For the administrator side (budgets, pooled allowances, and policies), see <a href="https://thomasiverson.github.io/gh-workshops/github-copilot-token-admin/workshop/" target="_blank" rel="noopener">Module 1: Admin Guardrails</a>.</li>
+            <li>For unattended Copilot CLI and Copilot SDK workloads, where habits must become enforced configuration, see <a href="https://thomasiverson.github.io/gh-workshops/github-copilot-token-platform-automation/workshop/" target="_blank" rel="noopener">Optional Module 4: Agent Fleet Efficiency and Cost Governance</a>.</li>
+          </ul>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="model-strategy.html"><small>Previous</small><strong>&larr; Model Strategy</strong></a>
+          <a class="next" href="../labs/index.html"><small>Next</small><strong>Hands-on Labs &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#tools">Measurement Tools</a>
+        <a href="#loop">The Before/After Loop</a>
+        <a href="#habits">30-Day Habit Plan</a>
+        <a href="#next">Next Steps</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

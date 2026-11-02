@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sessions, Caching, and Compaction &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Decide when to continue, fork, compact, or start a new session, keep the prompt cache warm, split research, plan, and implement, and hand off work cleanly." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="sessions-and-caching">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Topics</span><span class="sep">/</span><span>Sessions, Caching, and Compaction</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Sessions, Caching, and Compaction</h1>
+      <p class="subtitle">A session's history rides along on every request. Choose deliberately between continuing, forking, compacting, and starting fresh, and keep the cache warm while you work.</p>
+      <div class="badge-row"><span class="badge">Sessions</span><span class="badge">Prompt cache</span><span class="badge">~15 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="cache" class="section-card reveal">
+          <h2>How the Prompt Cache Works</h2>
+          <div class="quote-card">
+            <p>Caching lets an AI model store portions of a conversation's context so they don't need to be reprocessed on every request. [&hellip;] cached tokens are typically billed at 10% of the normal input price.</p>
+            <cite>Source: GitHub Docs, Optimizing your AI usage</cite>
+          </div>
+          <p>In agentic work, the same large prefix (system prompt, instructions, tool definitions, file contents) is resent turn after turn. When the prefix matches the previous request, it is billed at the cached rate. The &ldquo;typically 10%&rdquo; is not universal: Claude Sonnet 5.5 caches at 5% of input and some models are higher, so check the model row before you quote a ratio.</p>
+          <h3>What invalidates the cache</h3>
+          <div class="cheat">
+            <div class="cheat-item tone-red"><h3>Switching models</h3><p>A different model can't reuse another model's cache. Pick a model and stay on it for the session.</p></div>
+            <div class="cheat-item tone-red"><h3>Changing settings mid-session</h3><p>Changing reasoning effort, context size, or the set of enabled tools and MCP servers.</p></div>
+            <div class="cheat-item tone-red"><h3>Returning after expiry</h3><p>Caches expire after inactivity: 24 hours for OpenAI models and 1 hour for most others.</p></div>
+          </div>
+          <div class="callout success"><strong>Tip:</strong> configure model, reasoning, and tools before the first prompt. If you return to a long session after the cache expired, start fresh or run <code>/compact</code> first so a short summary is rebuilt instead of the full history.</div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/tutorials/optimize-ai-usage#4-preserve-the-cache" target="_blank" rel="noopener">Preserve the cache</a></div>
+        </section>
+
+        <section id="decision" class="section-card reveal">
+          <h2>Continue, Fork, Compact, or Start Fresh</h2>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart TD
+    S([Next prompt]) --> Q1{Same task or phase?}
+    Q1 -->|No| NEW[Start a new session]
+    Q1 -->|Yes| Q2{Exploring an alternative?}
+    Q2 -->|Yes| FORK[Fork the session]
+    Q2 -->|No| Q3{History large or cache cold?}
+    Q3 -->|Yes| CMP[Compact with a focus]
+    Q3 -->|No| CONT[Continue in place]
+    class S external
+    class Q1,Q2,Q3 neutral
+    class NEW azure
+    class FORK accent
+    class CMP warning
+    class CONT success
+            </pre>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Action</th><th>VS Code</th><th>Copilot CLI</th><th>Use when</th></tr></thead>
+            <tbody>
+              <tr><td>Start fresh</td><td>Start a new session</td><td><code>/new</code> or <code>/clear</code></td><td>The problem or work phase changed</td></tr>
+              <tr><td>Fork</td><td><code>/fork</code>, or <strong>Fork Conversation</strong> on an earlier request</td><td><code>/fork [NAME]</code></td><td>You want to try another approach with the same history</td></tr>
+              <tr><td>Compact</td><td><code>/compact [focus]</code></td><td><code>/compact [focus]</code></td><td>The thread is still relevant but its history is large</td></tr>
+              <tr><td>Side question</td><td><code>/btw &lt;question&gt;</code></td><td><code>/ask</code> or <code>/btw</code></td><td>A quick question that shouldn't enter the main history</td></tr>
+              <tr><td>Resume</td><td>Open the session from the sessions list</td><td><code>/resume</code> or <code>copilot --continue</code></td><td>The saved session still matches the task</td></tr>
+            </tbody>
+          </table></div>
+          <p>VS Code notes that stable context and forks can preserve prompt caching. A fork keeps the history, so it is the cheap way to explore an alternative without re-establishing context.</p>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://code.visualstudio.com/docs/agents/run/sessions/manage-sessions" target="_blank" rel="noopener">Manage agent sessions in VS Code</a> &middot; <a href="https://docs.github.com/copilot/reference/copilot-cli-reference/cli-command-reference" target="_blank" rel="noopener">Copilot CLI command reference</a></div>
+        </section>
+
+        <section id="compaction" class="section-card reveal">
+          <h2>Compaction Is a Tradeoff</h2>
+          <p>Compaction sends the conversation to the model for a structured summary, then replaces the old history with that summary plus your original instructions and current plans. Copilot CLI starts compacting automatically at about 80% of the context window and pauses briefly if it reaches about 95% before compaction finishes.</p>
+          <ul>
+            <li>Fine-grained details can be lost, and a completed compaction can't be reversed.</li>
+            <li>In Copilot CLI, <code>/session checkpoints</code> lists the saved summaries; <code>/session checkpoints 2</code> shows one in full.</li>
+            <li>Compact a long, still-relevant thread before its next phase. Don't compact after every turn, and don't compact to keep an unrelated conversation alive.</li>
+          </ul>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/agents/copilot-cli/context-management#compaction" target="_blank" rel="noopener">Compaction</a></div>
+        </section>
+
+        <section id="phases" class="section-card reveal">
+          <h2>Research, Plan, Then Implement</h2>
+          <p>When research, planning, and implementation share one session, context grows fast and later phases carry exploration they no longer need. Split them:</p>
+          <ol>
+            <li><strong>Research:</strong> explore the codebase, find the relevant files, and understand dependencies.</li>
+            <li><strong>Plan:</strong> produce a structured plan with a strong reasoning model. Use <code>/plan</code> in Copilot CLI or the Plan agent in VS Code.</li>
+            <li><strong>Implement:</strong> start a new session and execute the plan with focused context and a model suited to execution.</li>
+          </ol>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/tutorials/optimize-ai-usage#6-research-plan-then-implement" target="_blank" rel="noopener">Research, plan, then implement</a></div>
+        </section>
+
+        <section id="handoff" class="section-card reveal">
+          <h2>Clean-Session Handoff</h2>
+          <p>Starting fresh is cheap only if you don't have to re-derive what the last session figured out. Write six fields, ideally by asking the outgoing session to draft them, and paste them as the first message of the new session.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Field</th><th>Contents</th></tr></thead>
+            <tbody>
+              <tr><td>1. Task and outcome</td><td>The one task in scope and what done produces</td></tr>
+              <tr><td>2. Current state</td><td>What is implemented, verified, or ruled out</td></tr>
+              <tr><td>3. Important files</td><td>The specific paths that matter, and nothing else</td></tr>
+              <tr><td>4. Decisions</td><td>Choices already made, each with a one-line reason</td></tr>
+              <tr><td>5. Constraints</td><td>APIs, versions, patterns, security rules, out-of-scope areas</td></tr>
+              <tr><td>6. Next action and stop condition</td><td>The single next step and what stop looks like</td></tr>
+            </tbody>
+          </table></div>
+          <div class="takeaway"><h3>Key takeaway</h3><p>Keep the handoff to about one screen. A handoff longer than the history it replaces defeats the purpose.</p></div>
+        </section>
+
+        <section id="next" class="section-card reveal">
+          <h2>Next Steps</h2>
+          <ul>
+            <li>Cap how much a single task can spend in <a href="session-limits.html">AI Credit Session Limits</a>.</li>
+            <li>Practice plan, handoff, implement, and compact in <a href="../labs/lab03-session-control-cli.html">Lab 03</a>.</li>
+          </ul>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="copilot-memory.html"><small>Previous</small><strong>&larr; Copilot Memory Hygiene</strong></a>
+          <a class="next" href="session-limits.html"><small>Next</small><strong>AI Credit Session Limits &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#cache">How the Prompt Cache Works</a>
+        <a href="#decision">Continue, Fork, Compact, or Fresh</a>
+        <a href="#compaction">Compaction Tradeoff</a>
+        <a href="#phases">Research, Plan, Implement</a>
+        <a href="#handoff">Clean-Session Handoff</a>
+        <a href="#next">Next Steps</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

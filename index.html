@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Copilot AI Credit Optimization &middot; Developer Workshop</title>
+  <meta name="description" content="Hands-on L400 workshop: spend GitHub Copilot AI credits efficiently with the right interface, lean context, cache-aware sessions, and evidence-based model choice." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="assets/site.css" />
+</head>
+<body data-root="." data-active="home">
+  <div class="page">
+    <section class="landing-hero reveal">
+      <span class="eyebrow"><span class="nav-dot dot-blue"></span> Hands-on developer training &middot; L400</span>
+      <h1>Get more verified work from every AI credit with <span class="grad">GitHub Copilot</span></h1>
+      <p class="lead">
+        Learn how tokens become AI credits, then practice the habits that cut waste without cutting quality:
+        the right interface, lean context, cache-aware sessions, spend limits, and evidence-based model choice.
+      </p>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="topics/overview.html">
+          Start the workshop
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+        </a>
+        <a class="btn btn-ghost" href="#topics">Browse modules</a>
+        <a class="btn btn-ghost" href="labs/index.html">Go to hands-on labs</a>
+        <a class="btn btn-ghost" href="whats-new.html">What's New</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat"><strong>10</strong><span>Topic pages</span></div>
+        <div class="stat"><strong>4</strong><span>Hands-on labs</span></div>
+        <div class="stat"><strong>3&ndash;4 h</strong><span>Total duration</span></div>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <span class="kicker">Suggested flow</span>
+      <h2>Learning path</h2>
+      <p>Understand the meter, reduce what you send, control how cost accumulates, choose who answers, and prove each change with measurement.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div>
+          <h3>Understand the meter</h3>
+          <p>How tokens become AI credits and which features are billed. <a href="topics/overview.html">Overview</a> &middot; <a href="topics/ai-credits-fundamentals.html">AI Credits Fundamentals</a></p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div>
+          <h3>Send less, send better</h3>
+          <p>The smallest sufficient interface and context, lean customizations, and reviewed memory. <a href="topics/right-interface.html">Right Interface</a> &middot; <a href="topics/context-efficiency.html">Context Efficiency</a></p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div>
+          <h3>Control sessions and spend</h3>
+          <p>Cache-aware sessions, compaction, handoffs, and AI credit session limits. <a href="topics/sessions-and-caching.html">Sessions and Caching</a></p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div>
+          <h3>Choose models with evidence</h3>
+          <p>Copilot Fusion and Auto, reasoning effort, subagents, and cost per accepted outcome. <a href="topics/model-strategy.html">Model Strategy</a> &middot; <a href="topics/measure-and-improve.html">Measure and Improve</a></p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div>
+          <h3>Practice in the labs</h3>
+          <p>Measure a baseline, then apply each change to the same project in VS Code and Copilot CLI. <a href="labs/index.html">Hands-on Labs</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head" id="topics">
+      <span class="kicker">Workshop modules</span>
+      <h2>Core topics</h2>
+      <p>Each module covers one lever on the cost of a task, verified against GitHub Docs and VS Code documentation.</p>
+    </div>
+
+    <div class="card-grid">
+      <a class="topic-card has-icon tone-blue reveal" href="topics/overview.html">
+        <span class="tag">Start here</span>
+        <span class="ic"><img src="images/brand/workshop-mark.svg" alt="" /></span>
+        <h3>Overview</h3>
+        <p>Why usage-based billing changes everyday habits, and the mental model used throughout the workshop.</p>
+        <span class="more">Open module &rarr;</span>
+      </a>
+
+      <a class="topic-card tone-orange reveal" href="topics/ai-credits-fundamentals.html">
+        <span class="tag">Billing</span>
+        <h3>AI Credits Fundamentals</h3>
+        <p>Token categories, reading the pricing table, billed features, and where you see usage.</p>
+        <span class="more">Open module &rarr;</span>
+      </a>
+
+      <a class="topic-card tone-green reveal" href="topics/right-interface.html">
+        <span class="tag">Interfaces</span>
+        <h3>Choosing the Right Interface</h3>
+        <p>Unbilled completions for local edits; chat, plan, agent, CLI, or cloud agent only when needed.</p>
+        <span class="more">Open module &rarr;</span>
+      </a>
+
+      <a class="topic-card tone-green reveal" href="topics/context-efficiency.html">
+        <span class="tag">Context</span>
+        <h3>Context and Prompt Efficiency</h3>
+        <p>Task, context, and stop conditions, the smallest authoritative context, exclusions, and guardrails.</p>
+        <span class="more">Open module &rarr;</span>
+      </a>
+
+      <a class="topic-card tone-purple reveal" href="topics/customization-cost.html">
+        <span class="tag">Deep dive</span>
+        <h3>Always-On vs. On-Demand Customizations</h3>
+        <p>Which instructions, tools, prompt files, skills, and agents add context to every turn.</p>
+        <span class="more">Open module &rarr;</span>
+      </a>
+
+      <a class="topic-card tone-purple reveal" href="topics/copilot-memory.html">
+        <span class="tag">Deep dive</span>
+        <h3>Copilot Memory Hygiene</h3>
+        <p>Repository facts and user preferences, defaults, expiry, and what never to store.</p>
+        <span class="more">Open module &rarr;</span>
+      </a>
+
+      <a class="topic-card tone-orange reveal" href="topics/sessions-and-caching.html">
+        <span class="tag">Sessions</span>
+        <h3>Sessions, Caching, and Compaction</h3>
+        <p>Continue, fork, compact, or start fresh; cache invalidation; research, plan, implement; handoffs.</p>
+        <span class="more">Open module &rarr;</span>
+      </a>
+
+      <a class="topic-card tone-red reveal" href="topics/session-limits.html">
+        <span class="tag">Deep dive</span>
+        <h3>AI Credit Session Limits</h3>
+        <p>Cap a single Copilot CLI task with soft limits that complement monthly budgets.</p>
+        <span class="more">Open module &rarr;</span>
+      </a>
+
+      <a class="topic-card tone-purple reveal" href="topics/model-strategy.html">
+        <span class="tag">Models</span>
+        <h3>Model Strategy</h3>
+        <p>Copilot Fusion and Auto, reasoning effort, cheaper subagents, and cost per accepted outcome.</p>
+        <span class="more">Open module &rarr;</span>
+      </a>
+
+      <a class="topic-card tone-blue reveal" href="topics/measure-and-improve.html">
+        <span class="tag">Measurement</span>
+        <h3>Measure and Improve</h3>
+        <p>VS Code and CLI usage tools, the before/after loop, and a 30-day habit plan.</p>
+        <span class="more">Open module &rarr;</span>
+      </a>
+    </div>
+
+    <div class="section-head" id="labs">
+      <span class="kicker">Hands-on</span>
+      <h2>Labs</h2>
+      <p>Four progressive labs on one small Python project. The labs consume a small amount of your AI credit allowance.</p>
+    </div>
+
+    <div class="card-grid">
+      <a class="topic-card tone-blue reveal" href="labs/lab01-measure-baseline.html">
+        <span class="tag">VS Code + CLI</span>
+        <h3>Lab 01: Measure Your Baseline</h3>
+        <p>Record what a vague prompt costs in VS Code and Copilot CLI.</p>
+        <span class="more">Open lab &rarr;</span>
+      </a>
+      <a class="topic-card tone-green reveal" href="labs/lab02-lean-context-vscode.html">
+        <span class="tag">VS Code</span>
+        <h3>Lab 02: Lean Context, Instructions, and Tools</h3>
+        <p>Trim instructions, move detail on demand, exclude noise, and prune tools.</p>
+        <span class="more">Open lab &rarr;</span>
+      </a>
+      <a class="topic-card tone-orange reveal" href="labs/lab03-session-control-cli.html">
+        <span class="tag">Copilot CLI</span>
+        <h3>Lab 03: Sessions and Spend Control</h3>
+        <p>Cap spend, plan then hand off, and compact a long thread.</p>
+        <span class="more">Open lab &rarr;</span>
+      </a>
+      <a class="topic-card tone-purple reveal" href="labs/lab04-model-evaluation.html">
+        <span class="tag">VS Code + CLI</span>
+        <h3>Lab 04: Model Strategy and Evaluation</h3>
+        <p>Compare model arms by cost per accepted outcome and try a cheaper subagent.</p>
+        <span class="more">Open lab &rarr;</span>
+      </a>
+    </div>
+  </div>
+
+  <script type="module" src="assets/site.js"></script>
+</body>
+</html>

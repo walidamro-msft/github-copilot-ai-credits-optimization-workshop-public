@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Credit Session Limits &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Cap how many AI credits a single Copilot CLI task can spend with /limits and --max-ai-credits, understand soft-limit behavior, and pair limits with budgets." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="session-limits">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Topics</span><span class="sep">/</span><a href="sessions-and-caching.html">Sessions, Caching, and Compaction</a><span class="sep">/</span><span>Session Limits</span>
+    </nav>
+
+    <header class="hero">
+      <h1>AI Credit Session Limits</h1>
+      <p class="subtitle">Put a soft ceiling on a single agentic task so it stops and asks before it runs away with your allowance.</p>
+      <div class="badge-row"><span class="badge">Copilot CLI</span><span class="badge"><span class="chip chip-info">Public preview</span></span><span class="badge">~8 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="what-is" class="section-card reveal">
+          <h2>What Is a Session Limit?</h2>
+          <div class="quote-card">
+            <p>An AI credit session limit caps the amount of GitHub AI Credits that Copilot can spend in a session. [&hellip;] These session limits are soft limits. If a response is in progress when the limit is reached, that response completes before the session stops, so actual usage may slightly exceed the configured number.</p>
+            <cite>Source: GitHub Docs, Setting an AI credit session limit in GitHub Copilot CLI</cite>
+          </div>
+          <p>Session limits are available in Copilot CLI and the Copilot SDK. They are per-task controls; they don't replace the user-level budgets and spending limits that administrators use to govern monthly consumption.</p>
+          <div class="cheat">
+            <div class="cheat-item tone-orange"><h3>Avoid surprises</h3><p>Stop a task that keeps iterating before it consumes more than you expected.</p></div>
+            <div class="cheat-item tone-blue"><h3>Tune efficiency</h3><p>Find the minimum credits that still produce a good result for a task type.</p></div>
+          </div>
+        </section>
+
+        <section id="how-it-works" class="section-card reveal">
+          <h2>How It Works</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Mode</th><th>Set</th><th>Remove or adjust</th><th>When reached</th></tr></thead>
+            <tbody>
+              <tr><td>Interactive</td><td><code>/limits set max-ai-credits NUMBER</code></td><td><code>/limits unset</code>, or <code>/limits</code> to open the dialog</td><td>The agent stops and prompts you to reset or raise the limit</td></tr>
+              <tr><td>Non-interactive</td><td><code>copilot -p "PROMPT" --max-ai-credits NUMBER</code></td><td>Change the option on the next run</td><td>The run ends</td></tr>
+              <tr><td>Autopilot objective</td><td><code>/goal OBJECTIVE --max-ai-credits NUMBER</code></td><td>Enter a new amount in the panel</td><td>Autopilot pauses and reports credits used</td></tr>
+            </tbody>
+          </table></div>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as You
+    participant C as Copilot CLI
+    participant M as Model
+    U->>C: /limits set max-ai-credits 30
+    U->>C: Task prompt
+    loop Agent turns
+        C->>M: Request
+        M-->>C: Response and tool calls
+    end
+    Note over C: Limit reached, current response completes
+    C-->>U: Stopped, reset or raise?
+    alt Raise
+        U->>C: /limits set max-ai-credits 60
+    else Stop
+        U->>C: Review work, start fresh
+    end
+            </pre>
+          </div>
+          <div class="callout warning"><strong>Important:</strong> the minimum session limit is 30 AI credits.</div>
+          <div class="callout"><strong>Note:</strong> GitHub's documentation currently describes the interactive limit two ways. The how-to page says it applies to the entire session and depletes as each message is processed. The CLI command reference describes <code>/limits set max-ai-credits</code> and <code>--max-ai-credits</code> as a soft maximum per response that resets with each user message. Check the <code>/limits</code> dialog in your CLI version, and observe the behavior in Lab 03.</div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/how-tos/copilot-cli/use-copilot-cli/set-session-limit" target="_blank" rel="noopener">Setting an AI credit session limit in Copilot CLI</a> &middot; <a href="https://docs.github.com/copilot/reference/copilot-cli-reference/cli-command-reference" target="_blank" rel="noopener">Copilot CLI command reference</a></div>
+        </section>
+
+        <section id="decision" class="section-card reveal">
+          <h2>Choosing a Limit</h2>
+          <ul>
+            <li>Start from measured data. Use <code>/usage</code> after a few representative tasks to see what a normal run of that task type costs.</li>
+            <li>Set the limit a little above a normal run so healthy tasks finish and runaway tasks stop.</li>
+            <li>When a task hits the limit, treat it as a signal: is the prompt missing a stop condition, is the context too broad, or does the task need a plan first?</li>
+            <li>For unattended runs, always pass <code>--max-ai-credits</code>, because a non-interactive run simply ends at the limit.</li>
+          </ul>
+          <div class="takeaway"><h3>Key takeaway</h3><p>Session limits are soft, per-task guardrails. They complement, not replace, the monthly budgets your administrators set.</p></div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/tutorials/optimize-ai-usage#5-set-ai-credit-session-limits" target="_blank" rel="noopener">Set AI credit session limits</a></div>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="sessions-and-caching.html"><small>Previous</small><strong>&larr; Sessions, Caching, and Compaction</strong></a>
+          <a class="next" href="model-strategy.html"><small>Next</small><strong>Model Strategy &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#what-is">What Is a Session Limit?</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#decision">Choosing a Limit</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

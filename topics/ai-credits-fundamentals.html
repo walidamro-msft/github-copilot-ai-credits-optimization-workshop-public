@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Credits Fundamentals &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="How GitHub Copilot turns input, cached, cache-write, and output tokens into AI credits, which features are billed, and where you see your usage." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="ai-credits-fundamentals">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Topics</span><span class="sep">/</span><span>AI Credits Fundamentals</span>
+    </nav>
+
+    <header class="hero">
+      <h1>AI Credits Fundamentals</h1>
+      <p class="subtitle">Read a Copilot bill the way the meter does: tokens by category, priced per model, converted to AI credits.</p>
+      <div class="badge-row"><span class="badge">Billing</span><span class="badge">Pricing math</span><span class="badge">~12 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="what-is" class="section-card reveal">
+          <h2>What Is an AI Credit?</h2>
+          <div class="quote-card">
+            <p>GitHub AI Credits are the billing unit for metered Copilot usage in organizations and enterprises. [&hellip;] Each token is priced based on the model used, and the total is converted into AI credits, where 1 AI credit = $0.01 USD.</p>
+            <cite>Source: GitHub Docs, Usage-based billing for organizations and enterprises</cite>
+          </div>
+          <p>The cost of an interaction depends on two things: the model and the number of tokens consumed. A quick question on a lightweight model can cost a fraction of a credit; a long agent session on a frontier model across many files costs more because it does more work.</p>
+          <div class="cheat">
+            <div class="cheat-item tone-blue"><h3>Input</h3><p>Your prompt plus everything attached: files, history, instructions, tool schemas, and tool results.</p></div>
+            <div class="cheat-item tone-teal"><h3>Cached input</h3><p>Context reused from an earlier request in an active session, billed at a lower rate.</p></div>
+            <div class="cheat-item tone-orange"><h3>Cache write</h3><p>Some models charge to store context in the cache the first time.</p></div>
+            <div class="cheat-item tone-red"><h3>Output</h3><p>What the model generates, including reasoning. Usually the highest price per token.</p></div>
+          </div>
+        </section>
+
+        <section id="how-it-works" class="section-card reveal">
+          <h2>How Tokens Become Credits</h2>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    P[Prompt and context] --> M[Selected model]
+    M --> T1[Input tokens]
+    M --> T2[(Cached input)]
+    M --> T3[Cache write]
+    M --> T4[Output tokens]
+    T1 & T2 & T3 & T4 --> R[Per-model rates]
+    R --> C[AI credits]
+    class P external
+    class M accent
+    class T1 azure
+    class T2 data
+    class T3 warning
+    class T4 danger
+    class R neutral
+    class C success
+            </pre>
+          </div>
+          <p class="diagram-caption">Each token category has its own per-model rate; the sum in USD is divided by $0.01 to give AI credits.</p>
+          <div class="formula">AI credits = (input &times; input rate + cached &times; cached rate + cache writes &times; write rate + output &times; output rate) &divide; $0.01</div>
+          <h3>Worked example</h3>
+          <p>One agent turn on GPT-5.3-Codex sends 40,000 input tokens, of which 35,000 are served from the cache, and produces 1,500 output tokens. GPT-5.3-Codex has no cache-write cost. Rates are per 1 million tokens.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Category</th><th>Tokens</th><th>Rate (per 1M)</th><th>Cost</th></tr></thead>
+            <tbody>
+              <tr><td>Fresh input</td><td>5,000</td><td>$1.75</td><td>$0.00875</td></tr>
+              <tr><td>Cached input</td><td>35,000</td><td>$0.175</td><td>$0.00613</td></tr>
+              <tr><td>Output</td><td>1,500</td><td>$14.00</td><td>$0.02100</td></tr>
+              <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>$0.0359 &asymp; 3.6 credits</strong></td></tr>
+            </tbody>
+          </table></div>
+          <p>The same turn with a cold cache bills all 40,000 tokens as fresh input: $0.07 + $0.021 = $0.091, about 9.1 credits. Output was only 1,500 tokens yet cost more than all cached input combined.</p>
+          <div class="takeaway"><h3>Key takeaway</h3><p>The two biggest levers are how much fresh context you send each turn and how much the model writes back. Cache reuse and concise output often matter more than the model's headline input price.</p></div>
+        </section>
+
+        <section id="pricing" class="section-card reveal">
+          <h2>Reading the Pricing Table</h2>
+          <p>Prices are per 1 million tokens in USD. A selection of rows from the official table:</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Model</th><th>Category</th><th>Input</th><th>Cached input</th><th>Cache write</th><th>Output</th></tr></thead>
+            <tbody>
+              <tr><td>GPT-6 Luna (&le; 272K)</td><td>Lightweight</td><td>$0.10</td><td>$0.01</td><td>$0.125</td><td>$0.50</td></tr>
+              <tr><td>Claude Sonnet 5.5</td><td>Versatile</td><td>$2.00</td><td>$0.10</td><td>$2.50</td><td>$10.00</td></tr>
+              <tr><td>GPT-5.3-Codex</td><td>Powerful</td><td>$1.75</td><td>$0.175</td><td>None</td><td>$14.00</td></tr>
+              <tr><td>Claude Opus 5.5</td><td>Powerful</td><td>$4.00</td><td>$0.20</td><td>$5.00</td><td>$20.00</td></tr>
+            </tbody>
+          </table></div>
+          <ul>
+            <li><strong>Long context tiers</strong> charge more once a request crosses the model's input threshold, for example GPT-6 Luna above 272K tokens.</li>
+            <li><strong>Cached input is not a fixed ratio.</strong> It is often about 10% of input, but Claude Sonnet 5.5 is 5% and some models are higher. Check the row before you quote a figure.</li>
+            <li><strong>Promotional rates expire.</strong> Some rows carry dated promotional pricing; recheck before you budget.</li>
+          </ul>
+          <div class="callout"><strong>Note:</strong> verified against GitHub Docs on 2026-11-02. Model lists and prices change often; use the live table for any real estimate.</div>
+        </section>
+
+        <section id="billed" class="section-card reveal">
+          <h2>What Is Billed in AI Credits</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Feature</th><th>Consumes AI credits?</th></tr></thead>
+            <tbody>
+              <tr><td>Inline code completions and next edit suggestions</td><td><span class="chip chip-success">No</span> Unlimited on paid plans</td></tr>
+              <tr><td>Copilot Chat (IDE, GitHub.com, Mobile), including agent sessions</td><td><span class="chip chip-warning">Yes</span></td></tr>
+              <tr><td>Copilot CLI</td><td><span class="chip chip-warning">Yes</span></td></tr>
+              <tr><td>Copilot cloud agent</td><td><span class="chip chip-warning">Yes</span></td></tr>
+              <tr><td>Copilot Spaces and Spark</td><td><span class="chip chip-warning">Yes</span></td></tr>
+              <tr><td>Third-party coding agents (public preview)</td><td><span class="chip chip-warning">Yes</span> Plus GitHub Actions minutes</td></tr>
+              <tr><td>Copilot code review</td><td><span class="chip chip-warning">Yes</span> Plus GitHub Actions minutes</td></tr>
+            </tbody>
+          </table></div>
+          <p>Completions and next edit suggestions keep working even when a user has a $0 budget or hits an enforced spending limit. Opening an interface is not the billing event; sending a request to a model is.</p>
+          <h3>Included allowances</h3>
+          <p>Copilot Business includes 1,900 AI credits per user per month and Copilot Enterprise includes 3,900. Allowances are pooled across the billing entity, reset at 00:00 UTC on the first day of each month, and do not carry over. A 100-seat Business organization shares one pool of 190,000 credits.</p>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises" target="_blank" rel="noopener">Usage-based billing for organizations and enterprises</a> &middot; <a href="https://docs.github.com/copilot/reference/copilot-billing/models-and-pricing" target="_blank" rel="noopener">Models and pricing for GitHub Copilot</a></div>
+        </section>
+
+        <section id="where" class="section-card reveal">
+          <h2>Where You See Your Usage</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Where</th><th>What it shows</th></tr></thead>
+            <tbody>
+              <tr><td>VS Code: hover a chat response</td><td>AI credits for that single turn</td></tr>
+              <tr><td>VS Code: context window control in the chat input</td><td>Context tokens by category and the session's total AI credits</td></tr>
+              <tr><td>VS Code: Copilot status dashboard (Status Bar)</td><td>Percentage of your monthly allowance used</td></tr>
+              <tr><td>Copilot CLI: <code>/usage</code></td><td>Per-model token totals and AI credits for the session</td></tr>
+              <tr><td>GitHub.com: <strong>AI usage</strong> under <code>https://github.com/settings/billing</code></td><td>Consumption by feature and model</td></tr>
+            </tbody>
+          </table></div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://code.visualstudio.com/docs/agents/guides/optimize-usage" target="_blank" rel="noopener">Optimize AI credit usage in VS Code</a> &middot; <a href="https://docs.github.com/copilot/reference/copilot-cli-reference/cli-command-reference" target="_blank" rel="noopener">GitHub Copilot CLI command reference</a></div>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="overview.html"><small>Previous</small><strong>&larr; Overview</strong></a>
+          <a class="next" href="right-interface.html"><small>Next</small><strong>Choosing the Right Interface &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#what-is">What Is an AI Credit?</a>
+        <a href="#how-it-works">How Tokens Become Credits</a>
+        <a href="#pricing">Reading the Pricing Table</a>
+        <a href="#billed">What Is Billed</a>
+        <a href="#where">Where You See Usage</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

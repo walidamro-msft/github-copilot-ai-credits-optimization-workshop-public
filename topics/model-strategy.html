@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Strategy &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Use Copilot Fusion or Auto as the default, set reasoning deliberately, run subagents on cheaper models, and compare models by full cost per accepted outcome." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="model-strategy">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Topics</span><span class="sep">/</span><span>Model Strategy</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Model Strategy</h1>
+      <p class="subtitle">Use as much capability as the task requires and as little as necessary, then judge the choice by what each accepted result really cost.</p>
+      <div class="badge-row"><span class="badge">Models</span><span class="badge">Routing</span><span class="badge">~15 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="routing" class="section-card reveal">
+          <h2>Start With Automatic Routing</h2>
+          <p>Defaulting to the most capable model for every task often increases token use without improving the outcome, and overusing reasoning models can even lower quality on execution-heavy tasks. Automatic routing makes the per-task choice for you.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th></th><th>Copilot Fusion</th><th>Auto model selection</th></tr></thead>
+            <tbody>
+              <tr><td>What it does</td><td>Routes and orchestrates models at runtime; picks an execution pattern, reasoning effort, and models per prompt</td><td>Routes each prompt to one model based on task complexity and system health</td></tr>
+              <tr><td>Where (generally available)</td><td>VS Code, Copilot CLI, GitHub Copilot app, JetBrains IDEs</td><td>Copilot in the cloud, Copilot Chat on GitHub.com, GitHub Mobile, Visual Studio, Eclipse, Xcode</td></tr>
+              <tr><td>Levels</td><td>Fusion Standard, Fusion High, Fusion Max</td><td>Efficiency, Balance, Intelligence</td></tr>
+              <tr><td>Billing</td><td>Each model used, at its standard rate; no separate Fusion charge</td><td>The selected model's rate</td></tr>
+              <tr><td>Discount (as of 2026-11-02)</td><td>30% on model costs for paid plans through November 30, 2026</td><td>10% on model costs for paid plans in Copilot Chat or Copilot cloud agent</td></tr>
+            </tbody>
+          </table></div>
+          <p>If your picker shows <strong>Copilot Fusion</strong> instead of <strong>Auto</strong>, Fusion is available on that surface. Both route along natural cache boundaries to avoid cache-related costs without quality gains.</p>
+          <div class="callout warning"><strong>Important:</strong> discounts and availability change often. Recheck the linked pages before you quote a figure. Fusion High and Fusion Max aren't available on every plan, and they can use more than one model per task, so a task may cost more than on Fusion Standard.</div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/models/copilot-fusion" target="_blank" rel="noopener">About GitHub Copilot Fusion</a> &middot; <a href="https://docs.github.com/copilot/concepts/models/auto-model-selection" target="_blank" rel="noopener">About Copilot auto model selection</a></div>
+        </section>
+
+        <section id="how-it-works" class="section-card reveal">
+          <h2>How Copilot Fusion Executes a Prompt</h2>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    P[Prompt] --> R{Fusion router}
+    R -->|Single| S1[One model answers]
+    R -->|Cascade| C1[Efficient draft] --> J{Judge}
+    J -->|Accept| OUT[Response]
+    J -->|Escalate| C2[Stronger model] --> OUT
+    R -->|Critique| D[Draft] --> CR[Parallel critiques] --> RV[Revise] --> OUT
+    S1 --> OUT
+    class P external
+    class R,J neutral
+    class S1,C1 success
+    class C2,CR accent
+    class D,RV azure
+    class OUT success
+            </pre>
+          </div>
+          <p class="diagram-caption">Fusion adds model calls only when a task warrants them. Cascade and Critique take longer and can cost more; Single behaves like a request to one model.</p>
+          <ul>
+            <li>Fusion keeps the main conversation on the same model whenever possible, so it keeps benefiting from cached tokens. Assisting models receive only the context they need.</li>
+            <li>Fusion works separately from subagents and doesn't start them.</li>
+            <li>If Fusion discards a draft, file edits that draft already made are not undone automatically. Review changes before you commit.</li>
+          </ul>
+        </section>
+
+        <section id="manual" class="section-card reveal">
+          <h2>When to Choose Manually</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Model class</th><th>Use for</th></tr></thead>
+            <tbody>
+              <tr><td>Lightweight</td><td>Refactoring, formatting, documentation updates, and small, well-scoped changes you know a smaller model handles reliably</td></tr>
+              <tr><td>Versatile / mid-tier</td><td>Executing a plan that is already clear</td></tr>
+              <tr><td>Powerful / reasoning</td><td>Architecture decisions, complex debugging, system design, and planning</td></tr>
+            </tbody>
+          </table></div>
+          <h3>Reasoning effort</h3>
+          <p>Configurable reasoning is available in VS Code and Copilot CLI for supported models. Higher effort produces more thinking tokens, so use the default and raise it only for genuinely hard problems. In Copilot CLI, set it with <code>--effort</code> (<code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>) or from <code>/model</code>. Set it before the session starts; changing it mid-session invalidates the cache.</p>
+          <h3>Cheaper models for subagents</h3>
+          <p>Subagents run in their own context and don't inherit the main conversation, so a lighter model is often enough, and choosing one doesn't disturb the main agent's cache. In Copilot CLI, set a custom agent's <code>model</code> in its frontmatter or configure defaults with <code>/subagents</code>.</p>
+          <div class="callout warning"><strong>Important:</strong> in Copilot CLI, when the session model is set to Auto, subagents inherit the resolved session model and ignore their own <code>model</code> field. Use a specific session model when you want a subagent to run on a cheaper model.</div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/tutorials/optimize-ai-usage#1-choose-the-right-model-for-the-right-task" target="_blank" rel="noopener">Choose the right model for the right task</a> &middot; <a href="https://docs.github.com/copilot/reference/copilot-cli-reference/cli-command-reference#custom-agents-reference" target="_blank" rel="noopener">Custom agents reference</a></div>
+        </section>
+
+        <section id="full-cost" class="section-card reveal">
+          <h2>Full Cost per Accepted Outcome</h2>
+          <p>The cheapest model per attempt is not always the cheapest result. Full cost includes AI credits plus human review and correction. An outcome counts only if it passes its acceptance rule without material correction and stays valid.</p>
+          <div class="formula">Cost per accepted outcome = total cost of all attempts &divide; number of accepted outcomes</div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Option</th><th>Full cost per attempt</th><th>Acceptance rate</th><th>Cost per accepted outcome</th></tr></thead>
+            <tbody>
+              <tr><td>Lightweight model</td><td>$8.00</td><td>40%</td><td>$8.00 &divide; 0.40 = <strong>$20.00</strong></td></tr>
+              <tr><td>Powerful model</td><td>$14.00</td><td>80%</td><td>$14.00 &divide; 0.80 = <strong>$17.50</strong></td></tr>
+            </tbody>
+          </table></div>
+          <p>This is a decision framework, not a model ranking. Measure acceptance and full cost for each task category on your own work.</p>
+          <p>Multi-stage workflows compound: if every stage must succeed, end-to-end acceptance is the product of stage acceptance rates. Removing a redundant stage or making one retryable can save more than trimming tokens.</p>
+        </section>
+
+        <section id="myths" class="section-card reveal">
+          <h2>False-Economy Myths</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Myth</th><th>Reality</th></tr></thead>
+            <tbody>
+              <tr><td>&ldquo;Shorter prompts are always cheaper.&rdquo;</td><td>A too-short prompt often triggers costly follow-ups. Scope and clarity matter more than length.</td></tr>
+              <tr><td>&ldquo;Never start a new session.&rdquo;</td><td>Start fresh for an unrelated problem or a new phase; avoid restarting the same active task.</td></tr>
+              <tr><td>&ldquo;Cheaper models are always the safe default.&rdquo;</td><td>A wrong answer from an under-powered model often costs more in total than one correct answer.</td></tr>
+              <tr><td>&ldquo;Completions and chat cost the same.&rdquo;</td><td>Completions and next edit suggestions don't consume AI credits; chat, agent, CLI, and cloud agent usage does.</td></tr>
+              <tr><td>&ldquo;Cached input is always exactly 10x cheaper.&rdquo;</td><td>Typically about 10% of input, but it varies by model. Check the pricing row.</td></tr>
+            </tbody>
+          </table></div>
+          <div class="takeaway"><h3>Key takeaway</h3><p>Let Fusion or Auto handle the default choice, override it only with evidence, and judge every choice by cost per completed, verified task.</p></div>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="session-limits.html"><small>Previous</small><strong>&larr; AI Credit Session Limits</strong></a>
+          <a class="next" href="measure-and-improve.html"><small>Next</small><strong>Measure and Improve &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#routing">Automatic Routing</a>
+        <a href="#how-it-works">How Fusion Executes</a>
+        <a href="#manual">When to Choose Manually</a>
+        <a href="#full-cost">Cost per Accepted Outcome</a>
+        <a href="#myths">False-Economy Myths</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

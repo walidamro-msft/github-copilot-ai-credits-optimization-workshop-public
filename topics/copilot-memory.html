@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copilot Memory Hygiene &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="How Copilot Memory stores repository facts and user preferences, where it applies, how entries expire, and the review habits that keep it accurate and safe." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="copilot-memory">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Topics</span><span class="sep">/</span><a href="context-efficiency.html">Context and Prompt Efficiency</a><span class="sep">/</span><span>Copilot Memory</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Copilot Memory Hygiene</h1>
+      <p class="subtitle">Copilot Memory saves Copilot from rediscovering your conventions, but stored memories become context too. Audit them like any other state.</p>
+      <div class="badge-row"><span class="badge">Memory</span><span class="badge">Governance</span><span class="badge">~8 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="what-is" class="section-card reveal">
+          <h2>What Is Copilot Memory?</h2>
+          <div class="quote-card">
+            <p>Copilot Memory helps Copilot become more effective over time by remembering facts about your repositories and your personal coding preferences.</p>
+            <cite>Source: GitHub Docs, About GitHub Copilot Memory</cite>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th></th><th>Repository-level facts</th><th>User-level preferences</th></tr></thead>
+            <tbody>
+              <tr><td>Captures</td><td>Conventions, architecture decisions, build and test commands, project rules</td><td>How you like responses, approval requirements, reusable workflows</td></tr>
+              <tr><td>Applies</td><td>Only in the same repository</td><td>Across all your repositories</td></tr>
+              <tr><td>Created by</td><td>Users with write access who have Memory enabled</td><td>Only you, from your interactions</td></tr>
+              <tr><td>Deleted by</td><td>Users with write access, in the repository settings</td><td>You; on Business and Enterprise, also organization or enterprise owners</td></tr>
+            </tbody>
+          </table></div>
+          <p>Memories included in a request count toward token usage. Treat Memory as a correctness and consistency control, not a guaranteed credit reduction.</p>
+        </section>
+
+        <section id="where" class="section-card reveal">
+          <h2>Where It Applies and Default Settings</h2>
+          <p>Copilot Memory is available on all paid plans and can be used by the GitHub Copilot app, Copilot CLI, Copilot code review, Copilot cloud agent, Agentic Autofix, GitHub Mobile, and Copilot in Slack and Microsoft Teams. A memory captured by one surface can be used by another.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Surface</th><th>Default</th></tr></thead>
+            <tbody>
+              <tr><td>Copilot CLI, interactive</td><td>On; follows your GitHub settings. Check with <code>/memory show</code>; <code>/memory off</code> disables both types locally.</td></tr>
+              <tr><td>Copilot CLI, programmatic (<code>-p</code>)</td><td>Off. Pass <code>--enable-memory</code> for each run.</td></tr>
+              <tr><td>Visual Studio Code</td><td>Off. Enable the local setting.</td></tr>
+              <tr><td>Copilot code review, Agentic Autofix</td><td>Follow repository settings; use repository facts only, never user preferences.</td></tr>
+            </tbody>
+          </table></div>
+          <p>On Copilot Business and Copilot Enterprise, user-level preferences stay off until an organization or enterprise owner enables the policy; you can then opt out. Repository-level facts have a separate control and are allowed unless an enterprise, organization, or repository setting restricts them.</p>
+          <div class="callout"><strong>Note:</strong> in Copilot CLI, only the root agent can store or vote on memories. Subagents can read them but not change them.</div>
+        </section>
+
+        <section id="lifecycle" class="section-card reveal">
+          <h2>How Memories Are Checked and Retired</h2>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Stored
+    Stored --> Used: citations still valid
+    Used --> Stored: upvote resets expiry
+    Stored --> Ignored: downvoted
+    Stored --> Expired: no upvote in 90 days
+    Ignored --> Expired
+    Stored --> Deleted: you delete it
+    Expired --> [*]
+    Deleted --> [*]
+    class Stored data
+    class Used success
+    class Ignored warning
+    class Expired neutral
+    class Deleted danger
+            </pre>
+          </div>
+          <p class="diagram-caption">Teal is a stored memory, green is used and reinforced, orange is no longer used, gray has expired, and red is removed by you.</p>
+          <ul>
+            <li>Copilot checks a memory's citations before using it, and upvotes or downvotes it. Downvoted memories past a threshold stop being used.</li>
+            <li>Memories expire after <strong>90 days</strong> without reinforcement by default. An upvote resets the timer; simply retrieving a memory does not. Owners can set repository-fact expiry between 7 and 180 days.</li>
+            <li>The system rejects memories that contain detected secrets, and Copilot is instructed not to store sensitive personal information or short-lived, task-specific instructions.</li>
+          </ul>
+          <div class="callout warning"><strong>Important:</strong> a hidden memory is not necessarily deleted. If Copilot used a memory you don't want, delete it explicitly in the repository settings or your personal settings.</div>
+        </section>
+
+        <section id="best-practices" class="section-card reveal">
+          <h2>Hygiene Practices</h2>
+          <div class="cheat">
+            <div class="cheat-item tone-green"><h3>Review on triggers</h3><p>When a convention changes, a project is archived, or Copilot repeats stale advice.</p></div>
+            <div class="cheat-item tone-green"><h3>Delete wrong entries now</h3><p>Validation catches some outdated facts, not all of them.</p></div>
+            <div class="cheat-item tone-green"><h3>Rules go in instructions</h3><p>Mandatory rules belong in versioned, reviewed custom instructions. Memory holds the accumulated detail.</p></div>
+            <div class="cheat-item tone-green"><h3>Be explicit about scope</h3><p>Say whether a memory is for you or for everyone working in the repository.</p></div>
+          </div>
+          <div class="callout danger"><strong>Avoid:</strong> persisting secrets, credentials, tokens, customer or personal data, ticket numbers, temporary branch names, or &ldquo;this sprint only&rdquo; context in memory or instruction files.</div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/agents/copilot-memory" target="_blank" rel="noopener">About GitHub Copilot Memory</a> &middot; <a href="https://docs.github.com/copilot/how-tos/use-copilot-agents/copilot-memory/manage-for-yourself" target="_blank" rel="noopener">Managing Copilot Memory for your personal account</a></div>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="customization-cost.html"><small>Previous</small><strong>&larr; Always-On vs. On-Demand Customizations</strong></a>
+          <a class="next" href="sessions-and-caching.html"><small>Next</small><strong>Sessions, Caching, and Compaction &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#what-is">What Is Copilot Memory?</a>
+        <a href="#where">Where It Applies</a>
+        <a href="#lifecycle">Checked and Retired</a>
+        <a href="#best-practices">Hygiene Practices</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

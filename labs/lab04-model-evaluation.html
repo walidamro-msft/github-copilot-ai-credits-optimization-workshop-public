@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 04: Model Strategy and Evaluation &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Compare two model choices on a fixed task set, compute cost per accepted outcome, delegate a bounded task to a cheaper subagent, and write a 30-day habit plan." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="lab04-model-evaluation">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><a href="index.html">Labs</a><span class="sep">/</span><span>Lab 04</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Lab 04: Model Strategy and Evaluation</h1>
+      <p class="subtitle">Settle a model question with evidence: run the same tasks on two arms, compare cost per accepted outcome, and try a cheaper subagent for bounded work.</p>
+      <div class="badge-row"><span class="badge">VS Code + Copilot CLI</span><span class="badge">L400</span><span class="badge">~35 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="scenario" class="section-card reveal">
+          <h2>Scenario and Objectives</h2>
+          <p>Your team debates whether a lightweight model is &ldquo;good enough&rdquo; for routine tasks. Instead of arguing, you'll run a small before/after evaluation and let cost per accepted outcome decide.</p>
+          <ul>
+            <li>Run three fixed tasks on two arms that differ only by model.</li>
+            <li>Compute cost per accepted outcome and decide whether to keep, revert, or retest.</li>
+            <li>Delegate a bounded task to a custom agent running on a cheaper model in Copilot CLI.</li>
+            <li>Get personalized cost tips and write a 30-day habit plan.</li>
+          </ul>
+          <div class="callout"><strong>Related topics:</strong> <a href="../topics/model-strategy.html">Model Strategy</a> &middot; <a href="../topics/measure-and-improve.html">Measure and Improve</a></div>
+        </section>
+
+        <section id="architecture" class="section-card reveal">
+          <h2>Architecture</h2>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    TS[(Fixed task set)] --> A[Arm A: routed default]
+    TS --> B[Arm B: lightweight model]
+    A --> R[(Results worksheet)]
+    B --> R
+    R --> D{Cost per accepted outcome}
+    MAIN[CLI main agent] -->|delegates T3| SUB[Test-writer subagent]
+    class TS,R data
+    class A azure
+    class B success
+    class D neutral
+    class MAIN azure
+    class SUB accent
+            </pre>
+          </div>
+          <p class="diagram-caption">Both arms use the same tasks, prompts, instructions, and tools. Only the model changes. The subagent experiment runs separately in Copilot CLI.</p>
+        </section>
+
+        <section id="prerequisites" class="section-card reveal">
+          <h2>Prerequisites and Names</h2>
+          <ul>
+            <li>Completed <a href="lab03-session-control-cli.html">Lab 03</a>, with <code>~/credit-lab</code> at the <code>lean context configuration</code> commit and a clean working tree.</li>
+            <li>Your results worksheet, <code>~/credit-lab-results.md</code>, from earlier labs.</li>
+          </ul>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Item</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Tasks</td><td>T2, T3, and T5 from <code>tasks/task-set.md</code> (add T1 if you have time)</td></tr>
+              <tr><td>Arm A</td><td><strong>Copilot Fusion</strong> &gt; <strong>Fusion Standard</strong>, or <strong>Auto</strong></td></tr>
+              <tr><td>Arm B</td><td>One lightweight model from the VS Code model picker</td></tr>
+              <tr><td>Custom agent</td><td><code>.github/agents/test-writer.agent.md</code></td></tr>
+              <tr><td>Stash labels</td><td><code>A-T2</code>, <code>A-T3</code>, <code>B-T2</code>, <code>B-T3</code>, <code>lab04-subagent</code></td></tr>
+            </tbody>
+          </table></div>
+          <div class="callout"><strong>No live access?</strong> Use the completed before/after dataset in the <a href="https://thomasiverson.github.io/gh-workshops/github-copilot-token-developer/lab/" target="_blank" rel="noopener">Module 2 lab guide</a> for Steps 4 and 6.</div>
+        </section>
+
+        <section id="build" class="section-card reveal">
+          <h2>Build</h2>
+          <h3>Step 1: Freeze the experiment</h3>
+          <ol>
+            <li>Open <code>tasks/task-set.md</code> and reread the acceptance rules for T2, T3, and T5. Don't change them after you start.</li>
+            <li>Choose the Arm B model. Hover models in the VS Code model picker to see their cost tier, and pick one marked <strong>Low</strong>. Write both arms in the worksheet.</li>
+            <li>Confirm the tool set from Lab 02 and default reasoning. These stay the same for both arms.</li>
+          </ol>
+
+          <h3>Step 2: Run Arm A in VS Code</h3>
+          <p>Repeat for each task:</p>
+          <ol>
+            <li>Start a new agent session and select the Arm A model.</li>
+            <li>Paste the refined prompt for the task from <code>tasks/task-set.md</code>.</li>
+            <li>Check the acceptance rule. For T2 and T3, run <code>python -m unittest</code>; for T3, also confirm the new test fails if you temporarily remove the check in <code>release_stock</code>, then restore it.</li>
+            <li>Record credits (sum of per-turn hovers), pass or fail, and rework turns. If you needed a follow-up prompt to pass, count its credits and mark one rework turn.</li>
+            <li>Save the attempt: <code>git stash push -u -m "A-T2"</code> (use the task ID). T5 changes no files, so there is nothing to stash.</li>
+          </ol>
+
+          <h3>Step 3: Run Arm B in VS Code</h3>
+          <ol>
+            <li>Repeat Step 2 for each task with the Arm B model, using stash labels <code>B-T2</code> and <code>B-T3</code>.</li>
+          </ol>
+
+          <h3>Step 4: Compute cost per accepted outcome</h3>
+          <ol>
+            <li>For each arm, add up the credits for all attempts, including rework.</li>
+            <li>Count accepted tasks: a task counts only if it met its acceptance rule.</li>
+            <li>Divide total credits by accepted tasks and fill in the comparison table in the worksheet.</li>
+          </ol>
+          <div class="formula">Credits per accepted task = total credits for the arm &divide; accepted tasks</div>
+          <details class="solution">
+            <summary>How to read the result</summary>
+            <ul>
+              <li>Adopt Arm B for these task types only if its credits per accepted task are lower <em>and</em> it accepted as many tasks as Arm A.</li>
+              <li>If Arm B is cheaper per attempt but failed a task, it is a regression for that task type, not a saving.</li>
+              <li>Three tasks run once give a directional answer. Mark the decision &ldquo;retest&rdquo; if the arms are close, and rerun each task more than once.</li>
+            </ul>
+          </details>
+
+          <h3>Step 5: Delegate a bounded task to a cheaper subagent</h3>
+          <ol>
+            <li>Create <code>.github/agents/test-writer.agent.md</code>. Replace <code>&lt;lightweight-model-id&gt;</code> with a lightweight model ID listed by <code>/model</code> in Copilot CLI, such as <code>claude-haiku-4.5</code>.</li>
+          </ol>
+          <span class="code-label">.github/agents/test-writer.agent.md</span>
+          <pre class="code" data-lang="yaml">---
+name: test-writer
+description: Writes focused unittest tests for the orders package. Use only for adding tests.
+model: &lt;lightweight-model-id&gt;
+tools: ["view", "glob", "grep", "edit", "create", "apply_patch"]
+include-custom-instructions: true
+---
+Add only the requested unittest tests under tests/. Never change production code. Reply with the diff only.</pre>
+          <ol start="2">
+            <li>Start Copilot CLI with a specific session model, not Auto, so the subagent can use its own model. Replace <code>&lt;session-model-id&gt;</code> with a versatile model from <code>/model</code>:
+              <pre class="code" data-lang="bash">copilot --model &lt;session-model-id&gt;</pre></li>
+            <li>Send: <code>Use the test-writer agent to complete task T3 in tasks/task-set.md. Stop when the test is added.</code></li>
+            <li>Run <code>!python -m unittest</code> to verify without spending credits.</li>
+            <li>Run <code>/usage</code>. Confirm you see a row for the session model and a separate row for the subagent's model, each with its own credits.</li>
+            <li>Exit, then save the attempt with <code>git stash push -u -m "lab04-subagent"</code>.</li>
+          </ol>
+          <div class="callout warning"><strong>Important:</strong> if the session model is Auto, subagents inherit the resolved session model and ignore their own <code>model</code> field, so you won't see a separate model row.</div>
+
+          <h3>Step 6: Get cost tips and plan your habits</h3>
+          <ol>
+            <li>In Copilot CLI, run <code>/chronicle cost-tips</code>. In VS Code chat, the equivalent is <code>/chronicle:cost-tips</code>. This request consumes credits.</li>
+            <li>Compare the tips with your worksheet. Which tip matches what you measured?</li>
+            <li>Fill in the 30-day habit plan in the worksheet with three habits, when you apply each, and how you will know in 30 days whether it worked.</li>
+          </ol>
+        </section>
+
+        <section id="test" class="section-card reveal">
+          <h2>Test and Verify</h2>
+          <pre class="code" data-lang="bash">git stash list
+git status --short</pre>
+          <ul class="checklist">
+            <li>The worksheet has Arm A and Arm B rows for each task, with credits, pass or fail, and rework turns.</li>
+            <li>The cost-per-accepted-outcome table is filled in and the decision is keep, revert, or retest.</li>
+            <li><code>/usage</code> in Step 5 showed separate rows for the session model and the subagent model.</li>
+            <li>Your 30-day habit plan lists three habits with a way to measure each.</li>
+            <li><code>git status</code> is clean at the lean configuration commit.</li>
+          </ul>
+        </section>
+
+        <section id="troubleshoot" class="section-card reveal">
+          <h2>Troubleshooting</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Symptom</th><th>Check</th></tr></thead>
+            <tbody>
+              <tr><td>The custom agent doesn't appear</td><td>Confirm the file is in <code>.github/agents/</code> and has a <code>description</code>; run <code>/agent</code> to list agents.</td></tr>
+              <tr><td>The subagent uses the session model</td><td>The session model is probably Auto; restart with <code>--model</code> set to a specific model.</td></tr>
+              <tr><td>The model ID is rejected</td><td>Your plan or policy may not allow it. Pick another ID listed by <code>/model</code>.</td></tr>
+              <tr><td>The arms are too close to call</td><td>Record &ldquo;retest&rdquo; and rerun each task two or three times; output is non-deterministic.</td></tr>
+            </tbody>
+          </table></div>
+        </section>
+
+        <section id="cleanup" class="section-card reveal">
+          <h2>Cleanup and References</h2>
+          <p>Keep your worksheet. You can delete <code>~/credit-lab</code> when you no longer need it; drop stashes with <code>git stash clear</code> inside it first if you want to keep the folder. No cloud resources were created; the only cost was the AI credits for each run.</p>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/models/copilot-fusion" target="_blank" rel="noopener">About GitHub Copilot Fusion</a> &middot; <a href="https://docs.github.com/copilot/reference/copilot-cli-reference/cli-command-reference#custom-agents-reference" target="_blank" rel="noopener">Custom agents reference</a> &middot; <a href="https://docs.github.com/copilot/how-tos/copilot-cli/use-copilot-cli/chronicle" target="_blank" rel="noopener">Using Copilot CLI session data</a> &middot; <a href="https://code.visualstudio.com/docs/agents/guides/optimize-usage#_choose-models-based-on-evidence" target="_blank" rel="noopener">Choose models based on evidence</a></div>
+        </section>
+
+        <nav class="pager" aria-label="Lab pagination">
+          <a class="prev" href="lab03-session-control-cli.html"><small>Previous</small><strong>&larr; Lab 03: Sessions and Spend Control</strong></a>
+          <a class="next" href="../index.html"><small>Next</small><strong>Workshop Home &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#scenario">Scenario</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#prerequisites">Prerequisites</a>
+        <a href="#build">Build</a>
+        <a href="#test">Test and Verify</a>
+        <a href="#troubleshoot">Troubleshooting</a>
+        <a href="#cleanup">Cleanup</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

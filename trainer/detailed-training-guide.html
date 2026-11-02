@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detailed Training Guide &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Module-by-module talk track, discussion prompts, lab facilitation tips, and a backup plan for delivering the AI credit optimization workshop." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="trainer">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Workshop Home</a><span class="sep">/</span><a href="index.html">Trainer Hub</a><span class="sep">/</span><span>Detailed Training Guide</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Detailed Training Guide</h1>
+      <p class="subtitle">Module-by-module talk track, discussion prompts, and lab facilitation notes, adapted from the Module 2 Developer Efficiency workshop guide.</p>
+      <div class="badge-row"><span class="badge">Trainer-only</span><span class="badge">Facilitation guide</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="opening" class="section-card reveal">
+          <h2>Opening: Overview and AI Credits</h2>
+          <ul>
+            <li>Anchor idea: request count no longer explains cost. Two identical-looking requests can differ by 10x depending on context, model, cache state, and output.</li>
+            <li>Walk through the worked example on the AI Credits Fundamentals page: cached input versus cold cache, and output costing more than all cached input.</li>
+            <li>One-minute check: ask attendees to classify completions, a chat question about a failing test, a next edit suggestion, a Copilot CLI prompt, and a Spark request as billed or unbilled. Answer: completions and next edit suggestions are unbilled; the rest are billed.</li>
+            <li>Discussion: which token category do attendees suspect dominates their own sessions?</li>
+          </ul>
+        </section>
+
+        <section id="interface" class="section-card reveal">
+          <h2>Choosing the Right Interface</h2>
+          <ul>
+            <li>Misconception to address: &ldquo;Chat or agent for everything&rdquo;. Agents spend turns deciding a small edit doesn't need exploration.</li>
+            <li>Use the decision tree; ask the room to place two of their own recent tasks on it.</li>
+            <li>Discussion: what would make &ldquo;smallest sufficient interface&rdquo; a team habit rather than an afterthought?</li>
+          </ul>
+        </section>
+
+        <section id="context" class="section-card reveal">
+          <h2>Context, Customizations, and Memory</h2>
+          <ul>
+            <li>Lead with the always-on versus on-demand table. The recurring cost is instructions and tool schemas, not the number of customizations.</li>
+            <li>Stress that the goal is the smallest sufficient prompt, not the shortest. Show the before and after T1 prompt.</li>
+            <li>Memory: emphasize review triggers (convention change, archived project, stale advice) and never storing secrets or one-time task detail.</li>
+            <li>Discussion: does your team's instructions file read as specific and grounded, or generic? Where does the team skip tests or linters in a way that likely causes rework?</li>
+          </ul>
+        </section>
+
+        <section id="sessions" class="section-card reveal">
+          <h2>Sessions, Caching, and Session Limits</h2>
+          <ul>
+            <li>Explain cache invalidation in one sentence: anything that changes the request prefix (model, reasoning, tools) or lets it expire forces the full context to be billed fresh.</li>
+            <li>Avoid two opposite myths: &ldquo;never start a new session&rdquo; and &ldquo;restart constantly&rdquo;. Restart when the problem or phase changes; compact when the task stays relevant.</li>
+            <li>Session limits: call out the documentation conflict on scope and the 30-credit minimum. Ask attendees to report what their CLI version shows in Lab 03.</li>
+            <li>Discussion: which of the six handoff fields does your team most often lose between sessions, days, or people?</li>
+          </ul>
+        </section>
+
+        <section id="models" class="section-card reveal">
+          <h2>Model Strategy and Measurement</h2>
+          <ul>
+            <li>Lead with Copilot Fusion as the default where available, Auto elsewhere. State discounts with their date and source.</li>
+            <li>Work the full-cost example: the powerful model wins per accepted outcome despite costing more per attempt.</li>
+            <li>Close with the before/after loop and the habit plan. Ask each attendee to name one habit they will use in their next session.</li>
+            <li>Discussion: which optimization on your team is believed rather than measured, and what fixed task set would settle it?</li>
+          </ul>
+        </section>
+
+        <section id="labs" class="section-card reveal">
+          <h2>Lab Facilitation</h2>
+          <ul>
+            <li><strong>Before:</strong> confirm Copilot CLI is allowed by policy and attendees are on VS Code 1.120+ and Copilot CLI 1.0.48+. Have the repository URL ready.</li>
+            <li><strong>Lab 01:</strong> the most common blocker is Python not on <code>PATH</code>; suggest <code>python3</code> or <code>py</code>. Remind attendees that a failed baseline attempt is valid data.</li>
+            <li><strong>Lab 02:</strong> check that attendees configure tools before the first prompt of the test session.</li>
+            <li><strong>Lab 03:</strong> if an agent can't edit files, the model likely needs <code>apply_patch</code> or <code>edit</code> in <code>--available-tools</code>. If a limit triggers, use it as a teaching moment.</li>
+            <li><strong>Lab 04:</strong> if the subagent row is missing from <code>/usage</code>, the session model is Auto. Restart with <code>--model</code>.</li>
+            <li><strong>Stretch:</strong> attendees who finish early can run T4 on both arms, or compare Fusion Standard with Fusion High on T1.</li>
+          </ul>
+        </section>
+
+        <section id="backup" class="section-card reveal">
+          <h2>Backup Plan</h2>
+          <ol>
+            <li>If live CLI or chat is unavailable, walk through the comparison tables as a discussion.</li>
+            <li>Switch attendees to the supplied prompts, inventories, and before/after dataset in the <a href="https://thomasiverson.github.io/gh-workshops/github-copilot-token-developer/lab/" target="_blank" rel="noopener">Module 2 lab guide</a>.</li>
+            <li>Screen-share the official documentation pages linked on each topic instead of the live product.</li>
+            <li>Keep the results worksheet and habit plan as the artifacts attendees leave with.</li>
+          </ol>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="index.html"><small>Previous</small><strong>&larr; Trainer Hub</strong></a>
+          <a class="next" href="../index.html"><small>Next</small><strong>Workshop Home &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#opening">Opening</a>
+        <a href="#interface">Right Interface</a>
+        <a href="#context">Context and Memory</a>
+        <a href="#sessions">Sessions and Limits</a>
+        <a href="#models">Models and Measurement</a>
+        <a href="#labs">Lab Facilitation</a>
+        <a href="#backup">Backup Plan</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

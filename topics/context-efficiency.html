@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Context and Prompt Efficiency &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Send the smallest authoritative context with a clear task and stop condition, exclude noisy files, scope Copilot CLI access, and add deterministic guardrails." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="context-efficiency">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Topics</span><span class="sep">/</span><span>Context and Prompt Efficiency</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Context and Prompt Efficiency</h1>
+      <p class="subtitle">Every turn resends what is in the context window. Keep it small, authoritative, and pointed at a clear finish line.</p>
+      <div class="badge-row"><span class="badge">Prompting</span><span class="badge">Context</span><span class="badge">~15 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="context-window" class="section-card reveal">
+          <h2>What Fills the Context Window</h2>
+          <div class="quote-card">
+            <p>Copilot sends the context it has access to as input tokens, and that context adds up: open editor tabs, attached files, and the full back-and-forth of a long conversation all count as context.</p>
+            <cite>Source: GitHub Docs, Optimizing your AI usage</cite>
+          </div>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    SP[System prompt] --> W[Context window]
+    CI[Custom instructions] --> W
+    TL[Tool and MCP schemas] --> W
+    MSG[Messages and history] --> W
+    TR[Tool results] --> W
+    W --> REQ[Every model request]
+    class SP neutral
+    class CI,TL warning
+    class MSG,TR data
+    class W azure
+    class REQ danger
+            </pre>
+          </div>
+          <p class="diagram-caption">Orange items repeat on every turn, so they are recurring cost. Teal items grow as the session continues. Everything in the window is billed as input on each request.</p>
+          <p>In Copilot CLI and the GitHub Copilot app, <code>/context</code> breaks the window into <strong>System Prompt</strong>, <strong>Custom Instructions</strong>, <strong>System Tools</strong>, <strong>MCP Tools</strong>, <strong>Messages</strong>, <strong>Free Space</strong>, and <strong>Buffer</strong>. In VS Code, hover the context window control in the chat input for a category breakdown.</p>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/agents/copilot-cli/context-management" target="_blank" rel="noopener">Managing context for GitHub Copilot</a></div>
+        </section>
+
+        <section id="prompt" class="section-card reveal">
+          <h2>Task, Context, and Stop Condition</h2>
+          <p>A vague prompt forces the agent to infer intent, explore, and make judgment calls. That leads to retries, scope drift, and extra turns. Three qualities fix most of it, and they add very few tokens:</p>
+          <div class="cheat">
+            <div class="cheat-item tone-blue"><h3>Task</h3><p>What to change, where, and what correct looks like. Not just &ldquo;fix this&rdquo;.</p></div>
+            <div class="cheat-item tone-teal"><h3>Context</h3><p>The files, errors, logs, or examples that matter, so the agent doesn't search for them.</p></div>
+            <div class="cheat-item tone-green"><h3>Stop condition</h3><p>What done looks like, so the agent doesn't keep refactoring, committing, or expanding scope.</p></div>
+          </div>
+          <span class="code-label">Before</span>
+          <pre class="code" data-lang="text">fix the tests</pre>
+          <span class="code-label">After</span>
+          <pre class="code" data-lang="text">Task: make test_bulk_discount_applied_before_tax pass.
+Context: orders/pricing.py, order_total(). The 10% bulk discount applies to the subtotal before the 8% tax.
+Constraints: change only orders/pricing.py.
+Stop when: python -m unittest passes. Reply with the diff only.</pre>
+          <div class="callout warning"><strong>Important:</strong> the goal is the smallest sufficient prompt, not the shortest one. Leaving out context the model needs produces wrong answers and costlier follow-ups.</div>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/tutorials/optimize-ai-usage#2-provide-clear-guidance-in-your-prompts" target="_blank" rel="noopener">Provide clear guidance in your prompts</a></div>
+        </section>
+
+        <section id="scope" class="section-card reveal">
+          <h2>Smallest Authoritative Context</h2>
+          <p>Attach the file, snippet, or document the task actually needs, not the whole repository just in case. Ground the agent before broad exploration: name files, include the error, and state the constraint.</p>
+          <h3>Exclude noise from search</h3>
+          <p>Search match snippets count toward the context window even when the agent never opens the file. Generated output, logs, and dependencies make searches noisy.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Setting</th><th>Effect</th></tr></thead>
+            <tbody>
+              <tr><td><code>.gitignore</code></td><td>Excludes files from the VS Code workspace index and from agent text search and grep</td></tr>
+              <tr><td><code>files.exclude</code></td><td>Hides files from VS Code entirely, including the index and agent search</td></tr>
+              <tr><td><code>search.exclude</code></td><td>Excludes files from agent search while keeping them visible in the Explorer</td></tr>
+            </tbody>
+          </table></div>
+          <h3>Scope Copilot CLI to the task</h3>
+          <ul>
+            <li>Copilot CLI limits file access to the working directory and its subdirectories. Start in the narrowest correct directory (<code>-C DIRECTORY</code>), check it with <code>/cwd</code>, and use <code>/add-dir</code> only when the task needs another directory.</li>
+            <li>Tool output larger than 20 KiB is saved to a temporary file, and the model receives the path and a preview. Raising <code>COPILOT_LARGE_OUTPUT_THRESHOLD_BYTES</code> leaves less room for the conversation.</li>
+            <li>Ask for a diff or the specific change, not a restated file. Output tokens are the most expensive category on most models.</li>
+          </ul>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://code.visualstudio.com/docs/agents/guides/optimize-usage#_exclude-files-from-chat-context" target="_blank" rel="noopener">Exclude files from chat context in VS Code</a> &middot; <a href="https://docs.github.com/copilot/concepts/agents/copilot-cli/context-management#managing-large-tool-output-for-copilot-cli" target="_blank" rel="noopener">Managing large tool output</a></div>
+        </section>
+
+        <section id="guardrails" class="section-card reveal">
+          <h2>Deterministic Guardrails</h2>
+          <p>Agents are non-deterministic, and small errors compound in multi-step work. Unit tests, linters, and security scans give a clear pass/fail signal so the agent corrects course before building on a mistake.</p>
+          <p>Each check adds a few tokens, but teams with these guardrails see fewer retries and often use fewer tokens in total. Put the test command in your instructions and the acceptance check in your stop condition.</p>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/tutorials/optimize-ai-usage#8-add-deterministic-guardrails" target="_blank" rel="noopener">Add deterministic guardrails</a></div>
+        </section>
+
+        <section id="best-practices" class="section-card reveal">
+          <h2>Best Practices</h2>
+          <div class="cheat">
+            <div class="cheat-item tone-green"><h3>Name the files</h3><p>Point at the exact paths and symbols instead of letting the agent search.</p></div>
+            <div class="cheat-item tone-green"><h3>State done</h3><p>End every agentic prompt with a verifiable stop condition.</p></div>
+            <div class="cheat-item tone-green"><h3>Ask for diffs</h3><p>Request the change, not the whole file, when that satisfies the task.</p></div>
+            <div class="cheat-item tone-green"><h3>Keep ignore rules current</h3><p>Exclude logs, build output, and dependencies from search.</p></div>
+          </div>
+          <div class="callout danger"><strong>Avoid:</strong> attaching the whole repository, pasting long logs when a path would do, and open-ended prompts such as &ldquo;improve this codebase&rdquo;.</div>
+        </section>
+
+        <section id="next" class="section-card reveal">
+          <h2>Next Steps</h2>
+          <ul>
+            <li>Learn which customizations add context on every turn in <a href="customization-cost.html">Always-On vs. On-Demand Customizations</a>.</li>
+            <li>Review what Copilot remembers in <a href="copilot-memory.html">Copilot Memory Hygiene</a>.</li>
+            <li>Apply all of this in <a href="../labs/lab02-lean-context-vscode.html">Lab 02: Lean Context, Instructions, and Tools</a>.</li>
+          </ul>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="right-interface.html"><small>Previous</small><strong>&larr; Choosing the Right Interface</strong></a>
+          <a class="next" href="customization-cost.html"><small>Next</small><strong>Always-On vs. On-Demand Customizations &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#context-window">What Fills the Window</a>
+        <a href="#prompt">Task, Context, Stop</a>
+        <a href="#scope">Smallest Authoritative Context</a>
+        <a href="#guardrails">Deterministic Guardrails</a>
+        <a href="#best-practices">Best Practices</a>
+        <a href="#next">Next Steps</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

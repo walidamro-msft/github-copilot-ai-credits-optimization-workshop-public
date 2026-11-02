@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 03: Sessions and Spend Control &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="In Copilot CLI, narrow tools, set an AI credit session limit, plan then hand off to a fresh session, compact a long thread, and run a capped non-interactive prompt." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="lab03-session-control">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><a href="index.html">Labs</a><span class="sep">/</span><span>Lab 03</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Lab 03: Sessions and Spend Control</h1>
+      <p class="subtitle">Run a multi-step feature in Copilot CLI the cache-aware way: narrow scope, a spending cap, plan and implement in separate sessions, and compaction when the thread grows.</p>
+      <div class="badge-row"><span class="badge">Copilot CLI</span><span class="badge">L400</span><span class="badge">~30 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="scenario" class="section-card reveal">
+          <h2>Scenario and Objectives</h2>
+          <p>Your team needs JSON output for order summaries (task T4). It touches code, tests, and a formatting decision, so it is a good candidate for research, plan, then implement, with a cap on what any one session can spend.</p>
+          <ul>
+            <li>Start Copilot CLI with only the tools the task needs and compare <code>/context</code> with Lab 01.</li>
+            <li>Set an AI credit session limit and observe how it behaves.</li>
+            <li>Plan in one session, write a six-field handoff, and implement in a fresh session.</li>
+            <li>Compact a growing thread with a focus and inspect the checkpoint.</li>
+            <li>Run a capped, non-interactive prompt.</li>
+          </ul>
+          <div class="callout"><strong>Related topics:</strong> <a href="../topics/sessions-and-caching.html">Sessions, Caching, and Compaction</a> &middot; <a href="../topics/session-limits.html">AI Credit Session Limits</a> &middot; <a href="../topics/customization-cost.html">Always-On vs. On-Demand Customizations</a></div>
+        </section>
+
+        <section id="architecture" class="section-card reveal">
+          <h2>Architecture</h2>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart LR
+    S1[Plan session] -->|handoff| S2[Implement session]
+    S2 -->|compact| S2C[Compacted thread]
+    S2C --> CP[(Checkpoint)]
+    L[Session limit] -.->|caps| S1
+    L -.->|caps| S2
+    P[Prompt-mode run] -->|max-ai-credits| OUT[One answer]
+    class S1 accent
+    class S2,S2C azure
+    class CP data
+    class L danger
+    class P neutral
+    class OUT success
+            </pre>
+          </div>
+          <p class="diagram-caption">Planning and implementation run in separate sessions joined by a short handoff. A session limit caps each interactive session, and the prompt-mode run has its own cap.</p>
+        </section>
+
+        <section id="prerequisites" class="section-card reveal">
+          <h2>Prerequisites and Names</h2>
+          <ul>
+            <li>Completed <a href="lab02-lean-context-vscode.html">Lab 02</a>, with <code>~/credit-lab</code> at the <code>lean context configuration</code> commit and a clean working tree.</li>
+            <li>Copilot CLI 1.0.48 or later.</li>
+          </ul>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Item</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Working directory</td><td><code>~/credit-lab</code></td></tr>
+              <tr><td>Session limit</td><td><code>30</code> AI credits (the minimum)</td></tr>
+              <tr><td>Session names</td><td><code>t4-plan</code>, <code>t4-implement</code></td></tr>
+              <tr><td>Stash label</td><td><code>lab03-cli</code></td></tr>
+            </tbody>
+          </table></div>
+          <div class="callout"><strong>No live access?</strong> Complete the session design, session limit, and clean-session handoff exercises in the <a href="https://thomasiverson.github.io/gh-workshops/github-copilot-token-developer/lab/" target="_blank" rel="noopener">Module 2 lab guide</a>.</div>
+        </section>
+
+        <section id="build" class="section-card reveal">
+          <h2>Build</h2>
+          <h3>Step 1: Start with a narrow tool set</h3>
+          <ol>
+            <li>From <code>~/credit-lab</code>, start Copilot CLI with only file, search, and shell tools, and without the built-in MCP servers. Use the shell tool name for your platform.</li>
+          </ol>
+          <span class="code-label">PowerShell</span>
+          <pre class="code" data-lang="powershell">copilot -n t4-plan --available-tools "view,glob,grep,edit,create,apply_patch,powershell" --disable-builtin-mcps</pre>
+          <span class="code-label">bash</span>
+          <pre class="code" data-lang="bash">copilot -n t4-plan --available-tools "view,glob,grep,edit,create,apply_patch,bash" --disable-builtin-mcps</pre>
+          <ol start="2">
+            <li>Run <code>/model</code> and choose the same option as in earlier labs.</li>
+            <li>Run <code>/cwd</code> and confirm the working directory is <code>~/credit-lab</code>.</li>
+            <li>Run <code>/context</code>. Compare <strong>System Tools</strong>, <strong>MCP Tools</strong>, and <strong>Custom Instructions</strong> with your Lab 01 CLI row.</li>
+          </ol>
+          <p>Expected result: <strong>MCP Tools</strong> is zero or near zero, and <strong>Custom Instructions</strong> is smaller because of your Lab 02 changes.</p>
+
+          <h3>Step 2: Set a session limit</h3>
+          <ol>
+            <li>Run <code>/limits set max-ai-credits 30</code>.</li>
+            <li>Run <code>/limits</code> to open the dialog and note how your CLI version describes the limit's scope: the whole session, or each response.</li>
+          </ol>
+          <div class="callout"><strong>Note:</strong> GitHub's how-to page and the CLI command reference describe the scope differently. Record what your version shows. If a task reaches the limit, the agent stops cleanly and asks you to reset or raise it; raise it with <code>/limits set max-ai-credits 60</code>.</div>
+
+          <h3>Step 3: Plan without implementing</h3>
+          <ol>
+            <li>Send:
+              <pre class="code" data-lang="text">/plan Add JSON output to format_summary as described in task T4 in tasks/task-set.md. Plan only; list files, the function signature, the JSON shape, and the tests to add.</pre></li>
+            <li>Review the plan. Ask for corrections if it changes text output or uses floats for money. Don't approve implementation.</li>
+            <li>Send:
+              <pre class="code" data-lang="text">Draft a clean-session handoff for implementing this plan with six fields: task and outcome, current state, important files, decisions, constraints, next action and stop condition. Keep it under 20 lines. Don't write files.</pre></li>
+            <li>Copy the handoff into the handoff section of <code>~/credit-lab-results.md</code>. Edit anything that is wrong or too long.</li>
+            <li>Run <code>/usage</code> and note the credits used for planning.</li>
+          </ol>
+
+          <h3>Step 4: Implement in a fresh session</h3>
+          <ol>
+            <li>Run <code>/new</code>, then <code>/rename t4-implement</code>. If the prompt still shows plan mode, press <kbd>Shift</kbd>+<kbd>Tab</kbd> until it returns to standard mode.</li>
+            <li>Run <code>/limits</code> and confirm the limit is still set; set it again with <code>/limits set max-ai-credits 30</code> if needed.</li>
+            <li>Paste your handoff as the first message, followed by: <code>Implement this now. Stop when python -m unittest passes. Reply with the diff only.</code></li>
+            <li>Verify without spending credits by running the tests through the shell escape, which bypasses Copilot:
+              <pre class="code" data-lang="text">!python -m unittest</pre></li>
+          </ol>
+
+          <h3>Step 5: Grow the thread, then compact it</h3>
+          <ol>
+            <li>Send: <code>Add one unittest for format_summary with an empty orders list in JSON mode. Diff only.</code></li>
+            <li>Run <code>/context</code> and record the <strong>Messages</strong> tokens.</li>
+            <li>Run <code>/compact focus on the JSON format decisions in orders/report.py</code>.</li>
+            <li>Run <code>/context</code> again and compare <strong>Messages</strong>.</li>
+            <li>Run <code>/session checkpoints</code>, then <code>/session checkpoints 1</code>, and check whether the summary kept the decision to serialize money as two-decimal strings.</li>
+          </ol>
+
+          <h3>Step 6: Record and exit</h3>
+          <ol>
+            <li>Run <code>/usage</code> and record the implementation session's credits in a Lab 03 row, together with the planning credits from Step 3.</li>
+            <li>Run <code>/exit</code>.</li>
+          </ol>
+
+          <h3>Step 7: Run a capped non-interactive prompt</h3>
+          <ol>
+            <li>Run the T5 explanation with read-only tools and a cap:</li>
+          </ol>
+          <pre class="code" data-lang="bash">copilot -p "Explain in at most 5 bullets how order_total in orders/pricing.py computes a total, including the order of discount and tax. Do not edit any files." --max-ai-credits 30 --available-tools "view,glob,grep"</pre>
+          <p>Expected result: a short answer followed by usage statistics, and no file changes. Copilot Memory is off in prompt mode unless you add <code>--enable-memory</code>.</p>
+        </section>
+
+        <section id="test" class="section-card reveal">
+          <h2>Test and Verify</h2>
+          <pre class="code" data-lang="bash">python -m unittest
+git status --short</pre>
+          <ul class="checklist">
+            <li>All tests pass, including the new JSON tests.</li>
+            <li><code>git status</code> shows changes only in <code>orders/report.py</code> and <code>tests/test_report.py</code>.</li>
+            <li>The worksheet has a six-field handoff of about one screen or less.</li>
+            <li><strong>Messages</strong> tokens dropped after <code>/compact</code>, and the checkpoint kept the money-format decision.</li>
+            <li>You recorded how your CLI version scopes the session limit.</li>
+          </ul>
+          <p>Save the attempt: <code>git stash push -u -m "lab03-cli"</code>.</p>
+        </section>
+
+        <section id="troubleshoot" class="section-card reveal">
+          <h2>Troubleshooting</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Symptom</th><th>Check</th></tr></thead>
+            <tbody>
+              <tr><td>The agent says it can't edit files</td><td>Your model may use <code>apply_patch</code> or <code>edit</code>; confirm both are in <code>--available-tools</code>, and that you left plan mode.</td></tr>
+              <tr><td>The agent can't run tests</td><td>Include <code>powershell</code> on Windows or <code>bash</code> on macOS and Linux in <code>--available-tools</code>.</td></tr>
+              <tr><td><code>/limits set</code> rejects the value</td><td>The minimum is 30 AI credits.</td></tr>
+              <tr><td>The limit stops the task mid-implementation</td><td>Review progress, then raise the limit with <code>/limits set max-ai-credits 60</code> or tighten the prompt and start fresh.</td></tr>
+              <tr><td>The checkpoint lost a decision</td><td>That is the compaction tradeoff. Restate the decision, or compact with a more specific focus next time.</td></tr>
+            </tbody>
+          </table></div>
+        </section>
+
+        <section id="cleanup" class="section-card reveal">
+          <h2>Cleanup and References</h2>
+          <p>Leave the attempt stashed so <code>~/credit-lab</code> is back at the lean configuration commit for Lab 04. To remove saved CLI sessions, run <code>/session delete</code> in a session or <code>/session prune --older-than DAYS --dry-run</code> to preview. No cloud resources were created.</p>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/how-tos/copilot-cli/use-copilot-cli/set-session-limit" target="_blank" rel="noopener">Setting an AI credit session limit</a> &middot; <a href="https://docs.github.com/copilot/concepts/agents/copilot-cli/context-management" target="_blank" rel="noopener">Managing context for GitHub Copilot</a> &middot; <a href="https://docs.github.com/copilot/reference/copilot-cli-reference/cli-command-reference" target="_blank" rel="noopener">Copilot CLI command reference</a></div>
+        </section>
+
+        <nav class="pager" aria-label="Lab pagination">
+          <a class="prev" href="lab02-lean-context-vscode.html"><small>Previous</small><strong>&larr; Lab 02: Lean Context</strong></a>
+          <a class="next" href="lab04-model-evaluation.html"><small>Next</small><strong>Lab 04: Model Strategy and Evaluation &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#scenario">Scenario</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#prerequisites">Prerequisites</a>
+        <a href="#build">Build</a>
+        <a href="#test">Test and Verify</a>
+        <a href="#troubleshoot">Troubleshooting</a>
+        <a href="#cleanup">Cleanup</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>

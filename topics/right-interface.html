@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choosing the Right Interface &middot; GitHub Copilot AI Credit Optimization</title>
+  <meta name="description" content="Match each task to the smallest sufficient Copilot interface: unbilled completions, chat, plan, agent, Copilot CLI, cloud agent, and other billed surfaces." />
+  <script>(function(){var t=localStorage.getItem("workshop-theme");document.documentElement.setAttribute("data-theme",(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));})();</script>
+  <link rel="icon" type="image/svg+xml" href="../images/brand/workshop-mark.svg" />
+  <link rel="stylesheet" href="../assets/site.css" />
+</head>
+<body data-root=".." data-active="right-interface">
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a><span class="sep">/</span><span>Topics</span><span class="sep">/</span><span>Choosing the Right Interface</span>
+    </nav>
+
+    <header class="hero">
+      <h1>Choosing the Right Interface</h1>
+      <p class="subtitle">Use the smallest interface that can finish the task: unbilled completions for local edits, billed interfaces only when the work needs reasoning, coordination, or autonomy.</p>
+      <div class="badge-row"><span class="badge">Interfaces</span><span class="badge">Decision guide</span><span class="badge">~10 min</span></div>
+    </header>
+
+    <div class="layout">
+      <main class="content">
+        <section id="principle" class="section-card reveal">
+          <h2>The Smallest Sufficient Interface</h2>
+          <p>Interface choice sets how much context is assembled, how many tools are advertised, and how many model calls a task triggers. Matching the interface to the task avoids two failure modes:</p>
+          <div class="cheat">
+            <div class="cheat-item tone-red"><h3>Too heavy</h3><p>An agent session for a one-line rename spends turns exploring and planning work that completions would finish for free.</p></div>
+            <div class="cheat-item tone-orange"><h3>Too light</h3><p>A chat question for a multi-file change stalls, then needs follow-ups and manual edits that cost more in total.</p></div>
+          </div>
+          <div class="callout success"><strong>Tip:</strong> keep code completions and next edit suggestions on. They are unlimited on paid plans and do not consume AI credits, so in-flow typing never touches your allowance.</div>
+        </section>
+
+        <section id="compare" class="section-card reveal">
+          <h2>Compare the Interfaces</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Interface</th><th>Best for</th><th>AI credits</th></tr></thead>
+            <tbody>
+              <tr><td>Code completions and next edit suggestions</td><td>Small, local, in-the-flow edits</td><td><span class="chip chip-success">No</span></td></tr>
+              <tr><td>Chat questions in the IDE or on GitHub.com</td><td>Explaining code, answering a scoped question</td><td><span class="chip chip-warning">Yes</span></td></tr>
+              <tr><td>Plan agent (VS Code) or <code>/plan</code> (Copilot CLI)</td><td>Researching a change and producing a reviewed plan before code</td><td><span class="chip chip-warning">Yes</span></td></tr>
+              <tr><td>Agent sessions in VS Code</td><td>Multi-file changes, running commands, verifying results</td><td><span class="chip chip-warning">Yes</span></td></tr>
+              <tr><td>Copilot CLI</td><td>Terminal-native agentic tasks, scripts, repository-wide operations</td><td><span class="chip chip-warning">Yes</span></td></tr>
+              <tr><td>Copilot cloud agent</td><td>Long-running autonomous work that ends in a pull request</td><td><span class="chip chip-warning">Yes</span></td></tr>
+              <tr><td>Copilot code review</td><td>Pull request review</td><td><span class="chip chip-warning">Yes</span> + Actions minutes</td></tr>
+              <tr><td>Copilot Spaces, Spark, third-party coding agents</td><td>Shared context, app building, delegating to partner agents</td><td><span class="chip chip-warning">Yes</span></td></tr>
+            </tbody>
+          </table></div>
+          <p>Copilot Spaces is a billed surface, not free context storage. Third-party coding agents are in public preview, must be enabled by policy, and consume AI credits plus GitHub Actions minutes.</p>
+          <div class="callout learn"><strong>Learn more:</strong> <a href="https://docs.github.com/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises" target="_blank" rel="noopener">What is billed in AI credits</a> &middot; <a href="https://docs.github.com/copilot/concepts/agents/about-third-party-coding-agents" target="_blank" rel="noopener">Third-party coding agents</a></div>
+        </section>
+
+        <section id="decision" class="section-card reveal">
+          <h2>How to Choose</h2>
+          <div class="diagram-wrap">
+            <pre class="mermaid">
+flowchart TD
+    S([New task]) --> Q1{Local edit you can type?}
+    Q1 -->|Yes| CMP[Completions and NES]
+    Q1 -->|No| Q2{Only need an answer?}
+    Q2 -->|Yes| ASK[Chat question]
+    Q2 -->|No| Q3{Approach unclear?}
+    Q3 -->|Yes| PLAN[Plan first]
+    Q3 -->|No| Q4{Must finish unattended?}
+    PLAN --> Q4
+    Q4 -->|Yes| CLOUD[Cloud agent]
+    Q4 -->|No| AG[Agent in IDE or CLI]
+    class S external
+    class Q1,Q2,Q3,Q4 neutral
+    class CMP success
+    class ASK,AG azure
+    class PLAN accent
+    class CLOUD warning
+            </pre>
+          </div>
+          <p class="diagram-caption">Green is unbilled. Blue and purple are billed interactive work. Orange is billed autonomous work you review afterward.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Scenario</th><th>Smallest sufficient interface</th></tr></thead>
+            <tbody>
+              <tr><td>Rename a local variable and fix its three uses in one function</td><td>Completions and next edit suggestions</td></tr>
+              <tr><td>Understand why a test fails, with the error in hand</td><td>One chat question with the test file and error attached</td></tr>
+              <tr><td>Add a feature across four files and make the tests pass</td><td>Plan, then an agent session in VS Code or Copilot CLI</td></tr>
+              <tr><td>Bulk-update a config value across a monorepo from a script</td><td>Copilot CLI in the narrowest directory that contains the change</td></tr>
+              <tr><td>Upgrade a dependency overnight and open a pull request</td><td>Copilot cloud agent with a clear stop condition</td></tr>
+            </tbody>
+          </table></div>
+          <div class="takeaway"><h3>Key takeaway</h3><p>Interface choice is about autonomy and tooling as much as price. Give the model exactly the autonomy the task needs, and keep free completions doing the small work.</p></div>
+        </section>
+
+        <section id="next" class="section-card reveal">
+          <h2>Next Steps</h2>
+          <ul>
+            <li>See what each interface sends with every request in <a href="context-efficiency.html">Context and Prompt Efficiency</a>.</li>
+            <li>Compare the same task in VS Code and Copilot CLI in <a href="../labs/lab01-measure-baseline.html">Lab 01: Measure Your Baseline</a>.</li>
+          </ul>
+        </section>
+
+        <nav class="pager" aria-label="Workshop pagination">
+          <a class="prev" href="ai-credits-fundamentals.html"><small>Previous</small><strong>&larr; AI Credits Fundamentals</strong></a>
+          <a class="next" href="context-efficiency.html"><small>Next</small><strong>Context and Prompt Efficiency &rarr;</strong></a>
+        </nav>
+      </main>
+
+      <aside class="toc" aria-label="Table of contents">
+        <h3>On This Page</h3>
+        <a href="#principle">Smallest Sufficient Interface</a>
+        <a href="#compare">Compare the Interfaces</a>
+        <a href="#decision">How to Choose</a>
+        <a href="#next">Next Steps</a>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="../assets/site.js"></script>
+</body>
+</html>
