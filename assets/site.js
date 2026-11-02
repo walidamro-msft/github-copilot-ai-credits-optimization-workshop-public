@@ -7,7 +7,7 @@ import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.mi
 const WORKSHOP = {
   title: "GitHub Copilot AI Credit Optimization",
   tagline: "Developer Workshop",
-  brandIcon: "images/brand/workshop-mark.svg",
+  brandIcon: "images/brand/github-copilot-logo.png",
   copyright: "Created by Walid Amro (CSA at Microsoft).",
   lastUpdated: "2026-11-02",
   showTrainerLink: true,
